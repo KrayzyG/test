@@ -8,9 +8,9 @@ import {PersistGate} from 'redux-persist/integration/react';
 
 import RootNavigation from './src/navigation/RootNavigation';
 import {persistor, store} from './src/redux/store';
-import CodePush from 'react-native-code-push';
+// import CodePush from 'react-native-code-push'; // Removed
 import {NotificationService} from './src/services/Notification';
-import {CODEPUSH_DEPLOYMENTKEY} from './src/util/codepush';
+// import {CODEPUSH_DEPLOYMENTKEY} from './src/util/codepush'; // Removed
 import {LanguageService} from './src/services/Language';
 
 const App = () => {
@@ -30,9 +30,10 @@ const App = () => {
   );
 };
 
-const codePushOptions = {
-  checkFrequency: CodePush.CheckFrequency.MANUAL, // Kiểm tra cập nhật
-  deploymentKey: CODEPUSH_DEPLOYMENTKEY(),
-  serverUrl: 'https://code-push.quockhanh020924.id.vn',
-};
-export default CodePush(codePushOptions)(App);
+// const codePushOptions = {
+//   checkFrequency: CodePush.CheckFrequency.MANUAL, // Kiểm tra cập nhật
+//   deploymentKey: CODEPUSH_DEPLOYMENTKEY(),
+//   serverUrl: 'https://code-push.quockhanh020924.id.vn',
+// };
+// export default CodePush(codePushOptions)(App); // Removed CodePush HOC
+export default App; // Exporting the App component directly
