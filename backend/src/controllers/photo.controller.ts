@@ -1,16 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
-import { PhotoService } from '../services/photo.service';
-import { NotificationService } from '../services/notification.service';
+import { PhotoService } from '../services/photo.service'; // Uses placeholder service
+import { NotificationService } from '../services/notification.service'; // Uses placeholder service
 import { AuthRequest } from '../types/express';
 import multer from 'multer';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { firebaseStorage } from '../config/firebase.config';
+// import { firebaseStorage } from '../config/firebase.config'; // Commented out: No Firebase interaction
 
-const photoService = new PhotoService();
-const notificationService = new NotificationService();
+const photoService = new PhotoService(); // Instantiates placeholder service
+const notificationService = new NotificationService(); // Instantiates placeholder service
 
-// Configure multer for file uploads
+// Configure multer for file uploads (can remain as is, file content won't be uploaded to Firebase)
 const storage = multer.memoryStorage();
 const upload = multer({
   storage,
@@ -32,7 +32,7 @@ const upload = multer({
 
 export class PhotoController {
   /**
-   * Upload and send a new photo
+   * Upload and send a new photo (Placeholder for Firebase and DB)
    */
   public async uploadPhoto(req: AuthRequest, res: Response, next: NextFunction) {
     // Use multer to handle file upload
@@ -56,7 +56,8 @@ export class PhotoController {
           });
         }
         
-        const { caption, recipients } = req.body;
+        const { caption } = req.body; // recipients will be parsed separately
+        let { recipients } = req.body; // mutable
         
         if (!req.file) {
           return res.status(400).json({
@@ -65,85 +66,72 @@ export class PhotoController {
             message: 'Image file is required',
           });
         }
+
+        // Ensure recipients is parsed correctly if it's a JSON string
+        let recipientIds: number[];
+        try {
+            if (typeof recipients === 'string') {
+                recipientIds = JSON.parse(recipients).map((id: string | number) => parseInt(String(id)));
+            } else if (Array.isArray(recipients)) {
+                recipientIds = recipients.map((id: string | number) => parseInt(String(id)));
+            } else {
+                throw new Error('Recipients must be an array or a JSON string array');
+            }
+            if (recipientIds.length === 0) {
+                 return res.status(400).json({
+                    status: 'error',
+                    code: 400,
+                    message: 'At least one recipient is required',
+                });
+            }
+        } catch (parseError) {
+             return res.status(400).json({
+                status: 'error',
+                code: 400,
+                message: 'Invalid recipients format. Must be an array of IDs.',
+            });
+        }
+
+        // Placeholder: Generate a mock Firebase-like URL
+        console.log('[PhotoController.uploadPhoto] Placeholder: Simulating Firebase upload.');
+        const mockFilename = `photos/${userId}/${uuidv4()}-${Date.now()}${path.extname(req.file.originalname)}`;
+        const mockImageUrl = `https://storage.placeholder.com/mock-bucket/${mockFilename}`;
         
-        if (!recipients || !Array.isArray(JSON.parse(recipients)) || JSON.parse(recipients).length === 0) {
-          return res.status(400).json({
-            status: 'error',
-            code: 400,
-            message: 'At least one recipient is required',
+        // Placeholder: Simulate creating photo record using placeholder service
+        const photo = await photoService.createPhoto({
+          sender_id: userId,
+          image_url: mockImageUrl, // Use mock URL
+          caption: caption || null,
+          recipients: recipientIds,
+        });
+        
+        // Placeholder: Simulate creating notifications using placeholder service
+        console.log(`[PhotoController.uploadPhoto] Placeholder: Simulating notification creation for ${recipientIds.length} recipients.`);
+        for (const recipientId of recipientIds) {
+          await notificationService.createNotification({ // Uses placeholder
+            user_id: recipientId,
+            type: 'photo',
+            reference_id: photo.id, // Use ID from mock photo
+            content: `${req.user?.username} sent you a photo (placeholder)`,
           });
         }
-        
-        const recipientIds = JSON.parse(recipients).map((id: string) => parseInt(id));
-        
-        // Upload file to Firebase Storage
-        const bucket = firebaseStorage.bucket();
-        const filename = `photos/${userId}/${uuidv4()}-${Date.now()}${path.extname(req.file.originalname)}`;
-        const file = bucket.file(filename);
-        
-        const stream = file.createWriteStream({
-          metadata: {
-            contentType: req.file.mimetype,
+            
+        return res.status(201).json({
+          status: 'success',
+          data: {
+            photo: { // Return mock photo data
+              id: photo.id,
+              image_url: photo.image_url,
+              caption: photo.caption,
+              created_at: photo.created_at,
+              recipients: photo.recipients.map(recipient => ({
+                id: recipient.id, // This is PhotoRecipient ID
+                user_id: recipient.recipient_id, // This is the actual recipient user ID
+              })),
+            },
           },
         });
-        
-        stream.on('error', (error) => {
-          console.error('Error uploading to Firebase Storage:', error);
-          return res.status(500).json({
-            status: 'error',
-            code: 500,
-            message: 'Error uploading image',
-          });
-        });
-        
-        stream.on('finish', async () => {
-          try {
-            // Make the file publicly accessible
-            await file.makePublic();
-            
-            // Get public URL
-            const imageUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
-            
-            // Create photo record
-            const photo = await photoService.createPhoto({
-              sender_id: userId,
-              image_url: imageUrl,
-              caption: caption || null,
-              recipients: recipientIds,
-            });
-            
-            // Create notifications for recipients
-            for (const recipientId of recipientIds) {
-              await notificationService.createNotification({
-                user_id: recipientId,
-                type: 'photo',
-                reference_id: photo.id,
-                content: `${req.user?.username} sent you a photo`,
-              });
-            }
-            
-            return res.status(201).json({
-              status: 'success',
-              data: {
-                photo: {
-                  id: photo.id,
-                  image_url: photo.image_url,
-                  caption: photo.caption,
-                  created_at: photo.created_at,
-                  recipients: photo.recipients.map(recipient => ({
-                    id: recipient.id,
-                    user_id: recipient.recipient_id,
-                  })),
-                },
-              },
-            });
-          } catch (error) {
-            next(error);
-          }
-        });
-        
-        // Write the file buffer to the stream
-        stream.end(req.file.buffer);
+
       } catch (error) {
         next(error);
       }
@@ -151,7 +139,7 @@ export class PhotoController {
   }
   
   /**
-   * Get sent photos history
+   * Get sent photos history (Using Placeholder Service)
    */
   public async getSentPhotos(req: AuthRequest, res: Response, next: NextFunction) {
     try {
@@ -166,32 +154,34 @@ export class PhotoController {
       }
       
       const { page = '1', limit = '20' } = req.query;
+      const pageNum = parseInt(page as string);
+      const limitNum = parseInt(limit as string);
       
-      const photos = await photoService.getSentPhotos(
+      const photosData = await photoService.getSentPhotos( // Uses placeholder
         userId,
-        parseInt(page as string),
-        parseInt(limit as string)
+        pageNum,
+        limitNum
       );
       
       return res.status(200).json({
         status: 'success',
         data: {
-          photos: photos.rows.map(photo => ({
+          photos: photosData.rows.map(photo => ({ // Map mock data
             id: photo.id,
             image_url: photo.image_url,
             caption: photo.caption,
             created_at: photo.created_at,
             recipients: photo.recipients.map(recipient => ({
-              id: recipient.id,
-              user_id: recipient.recipient_id,
+              id: recipient.id, // PhotoRecipient ID
+              user_id: recipient.recipient_id, // Actual recipient User ID
               viewed_at: recipient.viewed_at,
             })),
           })),
           pagination: {
-            total: photos.count,
-            page: parseInt(page as string),
-            limit: parseInt(limit as string),
-            pages: Math.ceil(photos.count / parseInt(limit as string)),
+            total: photosData.count,
+            page: pageNum,
+            limit: limitNum,
+            pages: Math.ceil(photosData.count / limitNum),
           },
         },
       });
@@ -201,7 +191,7 @@ export class PhotoController {
   }
   
   /**
-   * Get received photos
+   * Get received photos (Using Placeholder Service)
    */
   public async getReceivedPhotos(req: AuthRequest, res: Response, next: NextFunction) {
     try {
@@ -216,33 +206,35 @@ export class PhotoController {
       }
       
       const { page = '1', limit = '20' } = req.query;
+      const pageNum = parseInt(page as string);
+      const limitNum = parseInt(limit as string);
       
-      const photos = await photoService.getReceivedPhotos(
+      const receivedPhotosData = await photoService.getReceivedPhotos( // Uses placeholder
         userId,
-        parseInt(page as string),
-        parseInt(limit as string)
+        pageNum,
+        limitNum
       );
       
       return res.status(200).json({
         status: 'success',
         data: {
-          photos: photos.rows.map(recipient => ({
-            id: recipient.photo.id,
-            image_url: recipient.photo.image_url,
-            caption: recipient.photo.caption,
-            created_at: recipient.photo.created_at,
+          photos: receivedPhotosData.rows.map(recipientEntry => ({ // Map mock data
+            id: recipientEntry.photo.id,
+            image_url: recipientEntry.photo.image_url,
+            caption: recipientEntry.photo.caption,
+            created_at: recipientEntry.photo.created_at,
             sender: {
-              id: recipient.photo.sender.id,
-              username: recipient.photo.sender.username,
-              profile_image: recipient.photo.sender.profile_image,
+              id: recipientEntry.photo.sender.id,
+              username: recipientEntry.photo.sender.username,
+              profile_image: recipientEntry.photo.sender.profile_image,
             },
-            viewed_at: recipient.viewed_at,
+            viewed_at: recipientEntry.viewed_at,
           })),
           pagination: {
-            total: photos.count,
-            page: parseInt(page as string),
-            limit: parseInt(limit as string),
-            pages: Math.ceil(photos.count / parseInt(limit as string)),
+            total: receivedPhotosData.count,
+            page: pageNum,
+            limit: limitNum,
+            pages: Math.ceil(receivedPhotosData.count / limitNum),
           },
         },
       });
@@ -252,7 +244,7 @@ export class PhotoController {
   }
   
   /**
-   * Get latest photo for widget
+   * Get latest photo for widget (Using Placeholder Service)
    */
   public async getLatestPhoto(req: AuthRequest, res: Response, next: NextFunction) {
     try {
@@ -266,35 +258,36 @@ export class PhotoController {
         });
       }
       
-      const photo = await photoService.getLatestReceivedPhoto(userId);
+      const photoRecipient = await photoService.getLatestReceivedPhoto(userId); // Uses placeholder
       
-      if (!photo) {
+      if (!photoRecipient || !photoRecipient.photo) { // Check photoRecipient.photo as well
         return res.status(404).json({
           status: 'error',
           code: 404,
-          message: 'No photos found',
+          message: 'No photos found (placeholder)',
         });
       }
       
-      // Mark as viewed if not already
-      if (!photo.viewed_at) {
-        await photoService.markPhotoAsViewed(photo.id);
+      // Placeholder: Simulate marking as viewed
+      if (!photoRecipient.viewed_at) {
+        await photoService.markPhotoAsViewed(photoRecipient.id); // Uses placeholder
+        photoRecipient.viewed_at = new Date(); // Reflect change in returned data
       }
       
       return res.status(200).json({
         status: 'success',
         data: {
-          photo: {
-            id: photo.photo.id,
-            image_url: photo.photo.image_url,
-            caption: photo.photo.caption,
-            created_at: photo.photo.created_at,
+          photo: { // Map mock data
+            id: photoRecipient.photo.id,
+            image_url: photoRecipient.photo.image_url,
+            caption: photoRecipient.photo.caption,
+            created_at: photoRecipient.photo.created_at,
             sender: {
-              id: photo.photo.sender.id,
-              username: photo.photo.sender.username,
-              profile_image: photo.photo.sender.profile_image,
+              id: photoRecipient.photo.sender.id,
+              username: photoRecipient.photo.sender.username,
+              profile_image: photoRecipient.photo.sender.profile_image,
             },
-            viewed_at: photo.viewed_at,
+            viewed_at: photoRecipient.viewed_at,
           },
         },
       });
@@ -304,7 +297,7 @@ export class PhotoController {
   }
   
   /**
-   * Delete a photo
+   * Delete a photo (Using Placeholder Service)
    */
   public async deletePhoto(req: AuthRequest, res: Response, next: NextFunction) {
     try {
@@ -319,39 +312,39 @@ export class PhotoController {
       }
       
       const { id } = req.params;
-      
-      if (!id) {
+      const photoIdNum = parseInt(id);
+
+      if (!photoIdNum) {
         return res.status(400).json({
           status: 'error',
           code: 400,
-          message: 'Photo ID is required',
+          message: 'Photo ID is required and must be a number',
         });
       }
       
-      const photo = await photoService.getPhotoById(parseInt(id));
+      const photo = await photoService.getPhotoById(photoIdNum); // Uses placeholder
       
       if (!photo) {
         return res.status(404).json({
           status: 'error',
           code: 404,
-          message: 'Photo not found',
+          message: 'Photo not found (placeholder)',
         });
       }
       
-      // Check if user is the sender
       if (photo.sender_id !== userId) {
         return res.status(403).json({
           status: 'error',
           code: 403,
-          message: 'Not authorized to delete this photo',
+          message: 'Not authorized to delete this photo (placeholder)',
         });
       }
       
-      await photoService.deletePhoto(parseInt(id));
+      await photoService.deletePhoto(photoIdNum); // Uses placeholder
       
       return res.status(200).json({
         status: 'success',
-        message: 'Photo deleted successfully',
+        message: 'Photo deleted successfully (placeholder)',
       });
     } catch (error) {
       next(error);
@@ -359,7 +352,7 @@ export class PhotoController {
   }
   
   /**
-   * Mark photo as viewed
+   * Mark photo as viewed (Using Placeholder Service)
    */
   public async markPhotoAsViewed(req: AuthRequest, res: Response, next: NextFunction) {
     try {
@@ -373,40 +366,40 @@ export class PhotoController {
         });
       }
       
-      const { id } = req.params;
+      const { id } = req.params; // This ID is PhotoRecipient ID
+      const recipientIdNum = parseInt(id);
       
-      if (!id) {
+      if (!recipientIdNum) {
         return res.status(400).json({
           status: 'error',
           code: 400,
-          message: 'Photo recipient ID is required',
+          message: 'Photo recipient ID is required and must be a number',
         });
       }
       
-      const recipient = await photoService.getPhotoRecipientById(parseInt(id));
+      const recipient = await photoService.getPhotoRecipientById(recipientIdNum); // Uses placeholder
       
       if (!recipient) {
         return res.status(404).json({
           status: 'error',
           code: 404,
-          message: 'Photo recipient not found',
+          message: 'Photo recipient not found (placeholder)',
         });
       }
       
-      // Check if user is the recipient
       if (recipient.recipient_id !== userId) {
         return res.status(403).json({
           status: 'error',
           code: 403,
-          message: 'Not authorized to mark this photo as viewed',
+          message: 'Not authorized to mark this photo as viewed (placeholder)',
         });
       }
       
-      await photoService.markPhotoAsViewed(parseInt(id));
+      await photoService.markPhotoAsViewed(recipientIdNum); // Uses placeholder
       
       return res.status(200).json({
         status: 'success',
-        message: 'Photo marked as viewed',
+        message: 'Photo marked as viewed (placeholder)',
       });
     } catch (error) {
       next(error);

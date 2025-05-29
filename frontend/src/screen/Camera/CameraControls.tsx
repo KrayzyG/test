@@ -5,7 +5,7 @@ import {Animated} from 'react-native';
 import CaptureButton from './CaptureButton';
 
 interface CameraControlsProps {
-  isRecording: boolean;
+  // isRecording: boolean; // Removed
   flashEnabled: boolean;
   zoom: number;
   minZoom: number;
@@ -14,12 +14,12 @@ interface CameraControlsProps {
   onSwitchCamera: () => void;
   onTakePicture: () => void;
   onStartRecord: () => void;
-  onStopRecord: () => void;
+  // onStopRecord: () => void; // Removed
   onZoomChange: (newZoom: number) => void;
 }
 
 const CameraControls: React.FC<CameraControlsProps> = ({
-  isRecording,
+  // isRecording, // Removed
   flashEnabled,
   zoom,
   minZoom,
@@ -27,8 +27,8 @@ const CameraControls: React.FC<CameraControlsProps> = ({
   onFlashToggle,
   onSwitchCamera,
   onTakePicture,
-  onStartRecord,
-  onStopRecord,
+  // onStartRecord, // Removed
+  // onStopRecord, // Removed
   onZoomChange,
 }) => {
   const rotateAnim = useRef(new Animated.Value(0)).current;
@@ -63,37 +63,37 @@ const CameraControls: React.FC<CameraControlsProps> = ({
       {/* Nút Flash */}
       <TouchableOpacity
         onPress={onFlashToggle}
-        disabled={isRecording}
+        // disabled={isRecording} // Removed disabled state
         hitSlop={{top: 20, bottom: 20, left: 20, right: 20}}>
         <Icon
           assetGroup="icons"
           assetName={flashEnabled ? 'ic_flash' : 'ic_flash_off'}
           size={28}
-          tintColor={isRecording ? Colors.grey60 : Colors.grey40}
+          tintColor={Colors.grey40} // No longer changes color based on isRecording
         />
       </TouchableOpacity>
 
       {/* Nút Chụp/Quay/Zoom */}
       <CaptureButton
-        isRecording={isRecording}
+        // isRecording={isRecording} // Removed
         zoom={zoom}
         minZoom={minZoom}
         maxZoom={maxZoom}
         onTakePicture={onTakePicture}
-        onStartRecord={onStartRecord}
-        onStopRecord={onStopRecord}
+        // onStartRecord={onStartRecord} // Removed
+        // onStopRecord={onStopRecord} // Removed
         onZoomChange={onZoomChange}
       />
 
       {/* Nút Xoay Camera */}
       <TouchableOpacity
         onPress={handleSwitchCameraPress}
-        disabled={isRecording}
+        // disabled={isRecording} // Removed disabled state
         hitSlop={{top: 20, bottom: 20, left: 20, right: 20}}>
         <Animated.View
           style={[
             {transform: [{rotate: rotateInterpolate}]},
-            isRecording && {opacity: 0.5},
+            // isRecording && {opacity: 0.5}, // Removed opacity change
           ]}>
           <Icon
             assetGroup="icons"

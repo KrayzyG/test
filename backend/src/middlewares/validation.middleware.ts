@@ -137,3 +137,16 @@ export const idParamValidation = [
     .notEmpty().withMessage('ID is required')
     .isInt().withMessage('ID must be an integer'),
 ];
+
+// Moment validation rules
+export const validateMomentCreation = [
+  body('data.thumbnail_url') // Adjusted to match the structure sent by the frontend
+    .notEmpty().withMessage('Thumbnail URL is required')
+    .isURL().withMessage('Thumbnail URL must be a valid URL'),
+  body('data.recipients') // Adjusted to match the structure
+    .notEmpty().withMessage('Recipients are required')
+    .isArray().withMessage('Recipients must be an array'),
+  body('data.overlays') // Adjusted to match the structure
+    .optional()
+    .isArray().withMessage('Overlays must be an array'),
+];

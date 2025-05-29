@@ -1,4 +1,58 @@
 {
   "name": "locket_upload",
-  "displayName": "locket_upload"
+  "displayName": "locket_upload",
+  "expo": {
+    "name": "locket_upload",
+    "slug": "locket-upload",
+    "version": "0.3.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.placeholder.locketupload"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.placeholder.locketupload"
+    },
+    "plugins": [
+      "expo-dev-client",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
+          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos to your gallery.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera.",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone for video recording (if enabled)."
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone for video recording (if enabled)."
+        }
+      ],
+      "@notifee/react-native/expo-plugin",
+      [
+        "ffmpeg-kit-react-native/expo-plugin",
+        {
+          "package": "full-gpl"
+        }
+      ]
+    ]
+  }
 }

@@ -1,17 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserService } from '../services/user.service';
+import { UserService } from '../services/user.service'; // Uses placeholder service
 import { AuthRequest } from '../types/express';
 
-const userService = new UserService();
+const userService = new UserService(); // Instantiates the placeholder service
 
 export class UserController {
   /**
-   * Get current user profile
+   * Get current user profile (Using Placeholder Service)
    */
   public async getCurrentUser(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.id;
-      
+
       if (!userId) {
         return res.status(401).json({
           status: 'error',
@@ -19,21 +19,21 @@ export class UserController {
           message: 'Unauthorized',
         });
       }
-      
-      const user = await userService.findById(userId);
-      
+
+      const user = await userService.findById(userId); // Uses placeholder service
+
       if (!user) {
         return res.status(404).json({
           status: 'error',
           code: 404,
-          message: 'User not found',
+          message: 'User not found (placeholder)',
         });
       }
-      
+
       return res.status(200).json({
         status: 'success',
         data: {
-          user: {
+          user: { // Return mock user data from placeholder service
             id: user.id,
             username: user.username,
             email: user.email,
@@ -48,14 +48,14 @@ export class UserController {
       next(error);
     }
   }
-  
+
   /**
-   * Update current user profile
+   * Update current user profile (Using Placeholder Service)
    */
   public async updateCurrentUser(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.id;
-      
+
       if (!userId) {
         return res.status(401).json({
           status: 'error',
@@ -63,27 +63,27 @@ export class UserController {
           message: 'Unauthorized',
         });
       }
-      
+
       const { username, phone, profile_image } = req.body;
-      
-      // Check if username is already taken
+
+      // Placeholder: Simulate check if username is already taken
       if (username) {
-        const existingUser = await userService.findByUsername(username);
+        const existingUser = await userService.findByUsername(username); // Uses placeholder
         if (existingUser && existingUser.id !== userId) {
           return res.status(409).json({
             status: 'error',
             code: 409,
-            message: 'Username is already taken',
+            message: 'Username is already taken (placeholder)',
           });
         }
       }
-      
-      const updatedUser = await userService.update(userId, {
+
+      const updatedUser = await userService.update(userId, { // Uses placeholder
         username,
         phone,
         profile_image,
       });
-      
+
       return res.status(200).json({
         status: 'success',
         data: {
@@ -102,14 +102,14 @@ export class UserController {
       next(error);
     }
   }
-  
+
   /**
-   * Delete current user account
+   * Delete current user account (Using Placeholder Service)
    */
   public async deleteCurrentUser(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.id;
-      
+
       if (!userId) {
         return res.status(401).json({
           status: 'error',
@@ -117,25 +117,25 @@ export class UserController {
           message: 'Unauthorized',
         });
       }
-      
-      await userService.delete(userId);
-      
+
+      await userService.delete(userId); // Uses placeholder
+
       return res.status(200).json({
         status: 'success',
-        message: 'User account deleted successfully',
+        message: 'User account deleted successfully (placeholder)',
       });
     } catch (error) {
       next(error);
     }
   }
-  
+
   /**
-   * Search users
+   * Search users (Using Placeholder Service)
    */
   public async searchUsers(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = req.user?.id;
-      
+      const userId = req.user?.id; // Current user ID
+
       if (!userId) {
         return res.status(401).json({
           status: 'error',
@@ -143,9 +143,9 @@ export class UserController {
           message: 'Unauthorized',
         });
       }
-      
+
       const { query } = req.query;
-      
+
       if (!query || typeof query !== 'string') {
         return res.status(400).json({
           status: 'error',
@@ -153,13 +153,13 @@ export class UserController {
           message: 'Search query is required',
         });
       }
-      
-      const users = await userService.search(query, userId);
-      
+
+      const users = await userService.search(query, userId); // Uses placeholder
+
       return res.status(200).json({
         status: 'success',
         data: {
-          users: users.map(user => ({
+          users: users.map(user => ({ // Map mock user data
             id: user.id,
             username: user.username,
             profile_image: user.profile_image,
@@ -170,14 +170,14 @@ export class UserController {
       next(error);
     }
   }
-  
+
   /**
-   * Change password
+   * Change password (Using Placeholder Service)
    */
   public async changePassword(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.id;
-      
+
       if (!userId) {
         return res.status(401).json({
           status: 'error',
@@ -185,22 +185,22 @@ export class UserController {
           message: 'Unauthorized',
         });
       }
-      
+
       const { current_password, new_password } = req.body;
-      
-      const success = await userService.changePassword(userId, current_password, new_password);
-      
+
+      const success = await userService.changePassword(userId, current_password, new_password); // Uses placeholder
+
       if (!success) {
         return res.status(400).json({
           status: 'error',
           code: 400,
-          message: 'Current password is incorrect',
+          message: 'Current password is incorrect (placeholder)',
         });
       }
-      
+
       return res.status(200).json({
         status: 'success',
-        message: 'Password changed successfully',
+        message: 'Password changed successfully (placeholder)',
       });
     } catch (error) {
       next(error);
