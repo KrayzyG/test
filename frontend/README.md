@@ -1,20 +1,22 @@
 
 # 📸 Locket Upload - React Native
-Ứng dụng **Locket Upload** giúp bạn tải ảnh và video lên **Locket Camera** một cách nhanh chóng và dễ dàng trên Android. Với giao diện thân thiện và tính năng thông minh, đây là công cụ lý tưởng để bạn chia sẻ khoảnh khắc với người thân và bạn bè ngay trên màn hình chính của họ.
+Ứng dụng **Locket Upload** (bản tùy chỉnh của Locket Clone) giúp bạn tải ảnh lên **Locket Camera** một cách nhanh chóng và dễ dàng. Với giao diện thân thiện và tính năng thông minh, đây là công cụ lý tưởng để bạn chia sẻ khoảnh khắc với người thân và bạn bè ngay trên màn hình chính của họ.
 
 ## ✨ Tính năng nổi bật
 
 - ✂️ **Cắt ảnh**: Đảm bảo ảnh đúng tỉ lệ 1:1 trước khi tải lên để phù hợp với giao diện Locket.
-- 🎥 **Upload video**: Hỗ trợ chọn và tải video từ thư viện thiết bị.
-- 📤 **Hiển thị tiến trình tải ảnh/video**: Theo dõi trực quan quá trình upload.
-- 🖼️ **Xem trước ảnh/video**: Có thể xem lại trước khi xác nhận gửi.
+- 📤 **Hiển thị tiến trình tải ảnh**: Theo dõi trực quan quá trình upload.
+- 🖼️ **Xem trước ảnh**: Có thể xem lại trước khi xác nhận gửi.
 - 🔄 **Đổi tên người dùng**: Cá nhân hóa tên hiển thị trong ứng dụng.
 - 🧑‍🤝‍🧑 **Hiển thị danh sách bạn bè**: Xem và chọn người nhận trước khi upload.
-- 🕰️ **Xem lại các moment cũ**: Dễ dàng xem lại những khoảnh khắc đã lưu trữ.
-- 💬 **Reaction các moment của bạn bè**: Thể hiện cảm xúc với moment của người khác.
-- 🚀 **Cập nhật trong app**: Nhận bản cập nhật mới ngay trong ứng dụng, không cần tải APK thủ công.
+- 🕰️ **Xem lại các moment cũ**: Dễ dàng xem lại những khoảnh khắc đã lưu trữ. (Lưu ý: Backend API cho tính năng này hiện là placeholder)
+- 💬 **Reaction các moment của bạn bè**: Thể hiện cảm xúc với moment của người khác. (Lưu ý: Backend API cho tính năng này hiện là placeholder)
+- 🚀 **Cập nhật trong app**: Nhận bản cập nhật mới ngay trong ứng dụng, không cần tải APK thủ công. (Tính năng này có thể cần cấu hình phía server cho việc kiểm tra cập nhật)
 
-## 📦 Bản dựng sẵn có thể tải [Tại đây](https://github.com/quockhanh2004/locket_upload_react_native/releases)
+## 📦 Bản dựng sẵn
+
+(Phần này được giữ nguyên từ README gốc, người dùng dự án có thể cần cập nhật nếu họ tự quản lý bản dựng)
+Bản dựng sẵn có thể tải [Tại đây](https://github.com/quockhanh2004/locket_upload_react_native/releases)
 
 [![GitHub Releases](https://img.shields.io/github/downloads/quockhanh2004/locket_upload_react_native/total?label=Downloads&logo=android)](https://github.com/quockhanh2004/locket_upload_react_native/releases)
 
@@ -49,54 +51,74 @@ Nếu bạn muốn tùy chỉnh ứng dụng theo nhu cầu của riêng mình, 
 
 Trước tiên, hãy đảm bảo bạn đã cài đặt:
 
-- **Node.js** (>= 16)
-- **Yarn** hoặc **npm**
-- **React Native CLI**
-- **Android Studio** (nếu build trên Android)
-- **Đổi tên file `.env.example` thành `.env`**
-- **Thêm `google-services.json` từ Firebase vào thư mục `android/app/`** (để nhận thông báo khi tự build lại)
+- **Node.js** (>= 18)
+- **npm**
+- **Expo CLI** (`npm install -g expo-cli`)
+- **EAS CLI** (nếu sử dụng Expo Application Services: `npm install -g eas-cli`)
+- **Android Studio** (cho development build trên Android emulator/device)
+- **Xcode** (cho development build trên iOS simulator/device)
+- **Đổi tên file `.env.examble` thành `.env`** (Lưu ý: tên file gốc là `.env.examble`) và cập nhật các biến môi trường cần thiết.
+- **Thiết lập Firebase:**
+    - Đặt file `google-services.json` (Android) vào thư mục `android/app/` (nếu bạn build native code hoặc sử dụng EAS Build). Đối với Expo Go hoặc development builds được quản lý bởi Expo, cấu hình Firebase thường được thực hiện trong `app.json` hoặc thông qua các plugin Expo. Tuy nhiên, do dự án này sử dụng `@react-native-firebase`, việc đặt file này là cần thiết cho các bản build native.
+    - Đặt file `GoogleService-Info.plist` (iOS) vào thư mục `ios/locket_upload/` (tên thư mục con có thể thay đổi tùy theo cấu trúc dự án iOS).
 
 ### 2️⃣ Clone repo
 
 ```sh
 git clone https://github.com/quockhanh2004/locket_upload_react_native.git
-cd locket_upload_react_native
+cd locket_upload_react_native # Hoặc tên thư mục dự án của bạn
+npm install
 ```
 
 ### 3️⃣ Cài đặt dependencies
 
 ```sh
-yarn install  # hoặc npm install
+npm install
 ```
 
-### 4️⃣ Build ứng dụng
+### 4️⃣ Chạy ứng dụng (Development)
 
-#### Chạy trên thiết bị ảo hoặc thật
+Để chạy ứng dụng trong môi trường phát triển, bạn cần một development build trên thiết bị hoặc emulator/simulator.
 
+**Tạo Development Build (nếu chưa có):**
+Sử dụng EAS CLI (Expo Application Services):
 ```sh
-yarn start  # hoặc npm start, sau đó nhấn phím a
+# Cài đặt EAS CLI nếu chưa có: npm install -g eas-cli
+# Đăng nhập vào tài khoản Expo: eas login
+eas build -p android --profile development
+# hoặc
+eas build -p ios --profile development
 ```
+Sau đó cài đặt file build (`.apk` hoặc `.tar.gz`) lên thiết bị/emulator.
 
-#### Build APK trên Mac OS hoặc Linux
-
+**Chạy Development Server:**
 ```sh
-yarn run build-android  # hoặc npm run build-android
+npx expo start --dev-client
 ```
+Quét mã QR từ terminal bằng ứng dụng Expo Go trên thiết bị của bạn (nếu build tương thích với Expo Go) hoặc development build đã cài đặt.
 
-#### Build APK trên Windows
+### 5️⃣ Build ứng dụng cho Production
 
+Để tạo bản build production cho việc phát hành:
 ```sh
-yarn run build-android-windows  # hoặc npm run build-android-windows
+# Android
+eas build -p android --profile production
+
+# iOS
+eas build -p ios --profile production
 ```
+File build sẽ được tạo bởi EAS và có thể tải về từ dashboard Expo.
 
-APK sau khi build sẽ có trong thư mục `android/app/build/outputs/apk/release/` và sẽ tự động được cài lên thiết bị nếu kết nối qua USB.
-
-### 5️⃣ Tuỳ chỉnh theo ý muốn
+### 6️⃣ Tuỳ chỉnh theo ý muốn
 
 Bạn có thể thay đổi các thành phần trong source code, chẳng hạn:
-
 - **Giao diện**: `src/components/`, `src/Dialog/`, `src/screen/`
-- **API Upload**: Kiểm tra trong `src/redux/action`
+- **API Integration**: `src/redux/action/postMoment.action.tsx` (hiện tại trỏ đến API placeholder).
+
+**Lưu ý quan trọng về Backend API:**
+Backend của dự án này hiện tại đang ở trạng thái **placeholder**.
+- Endpoint chính để tạo "moment" (chia sẻ ảnh) là `POST /api/v1/moments`. Frontend sẽ tải ảnh lên Firebase Storage (cần bạn tự cấu hình Firebase) và gửi `thumbnail_url` cùng với thông tin người nhận và hiệu ứng đến endpoint này. Endpoint này hiện chỉ trả về thông báo thành công giả lập.
+- Tất cả các API backend khác (xác thực, quản lý người dùng, bạn bè, lịch sử ảnh, v.v.) cũng là placeholder. Chúng sẽ trả về dữ liệu giả lập và **cần người dùng tự hoàn thiện** để ứng dụng hoạt động đầy đủ với cơ sở dữ liệu và các dịch vụ cần thiết khác. Tham khảo `README.md` ở thư mục gốc và `backend/README.md` để biết thêm chi tiết.
 
 ## 🚀 Đóng góp
 
