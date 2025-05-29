@@ -55,14 +55,14 @@ function CameraScreen() {
   }, [device]);
 
   // Refs cho việc quay video
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const timeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  // const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // const timeIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // State quản lý media và trạng thái quay
   const [photo, setPhoto] = useState<string | null>(null);
-  const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const [timeRecording, setTimeRecording] = useState(0);
+  const [mediaType, setMediaType] = useState<'image' | null>(null); // Only 'image' or null
+  // const [isRecording, setIsRecording] = useState(false);
+  // const [timeRecording, setTimeRecording] = useState(0);
   const [zoom, setZoom] = useState(device?.minZoom ?? 1);
 
   // Reset zoom khi device thay đổi
@@ -106,7 +106,7 @@ function CameraScreen() {
         console.log('Photo taken:', data.path);
         const newImage = await resizeImage(data.path);
         setPhoto(newImage?.uri || '');
-        setMediaType('image');
+        setMediaType('image'); // Ensure mediaType is always 'image'
       })
       .catch(error => {
         console.error('Take photo error:', error);
@@ -119,119 +119,119 @@ function CameraScreen() {
       });
   }, [cameraRef, cameraSettings, isCameraActive, dispatch]);
 
-  const handleStartRecord = useCallback(async () => {
-    if (!cameraRef.current || isRecording || !isCameraActive) {
-      return;
-    }
-    console.log('Starting Record...');
-    setIsRecording(true);
-    setTimeRecording(0);
+  // const handleStartRecord = useCallback(async () => {
+  //   if (!cameraRef.current || isRecording || !isCameraActive) {
+  //     return;
+  //   }
+  //   console.log('Starting Record...');
+  //   setIsRecording(true);
+  //   setTimeRecording(0);
 
-    if (timeIntervalRef.current) {
-      clearInterval(timeIntervalRef.current);
-    }
-    timeIntervalRef.current = setInterval(() => {
-      setTimeRecording(prev => prev + 1);
-    }, 1000);
+  //   if (timeIntervalRef.current) {
+  //     clearInterval(timeIntervalRef.current);
+  //   }
+  //   timeIntervalRef.current = setInterval(() => {
+  //     setTimeRecording(prev => prev + 1);
+  //   }, 1000);
 
-    // Xóa timeout cũ nếu có
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    // Đặt timeout dừng quay (ví dụ 10 giây)
-    timeoutRef.current = setTimeout(async () => {
-      console.log('Recording timeout');
-      await handleStopRecord();
-    }, 10000);
+  //   // Xóa timeout cũ nếu có
+  //   if (timeoutRef.current) {
+  //     clearTimeout(timeoutRef.current);
+  //   }
+  //   // Đặt timeout dừng quay (ví dụ 10 giây)
+  //   timeoutRef.current = setTimeout(async () => {
+  //     console.log('Recording timeout');
+  //     await handleStopRecord();
+  //   }, 10000);
 
-    try {
-      await cameraRef.current.startRecording({
-        videoCodec: 'h265', // Hoặc 'h265' nếu thiết bị hỗ trợ tốt
-        fileType: 'mp4',
-        flash: cameraSettings.flash ? 'on' : 'off',
-        onRecordingFinished: video => {
-          console.log('onRecordingFinished:', video.path);
-          // Chỉ set photo nếu không phải do lỗi và state isRecording vẫn là true
-          // (để tránh ghi đè nếu stop bị gọi nhiều lần)
-          // Logic này sẽ đơn giản hơn nếu isRecording được set false ở stop
-          // Tạm thời vẫn set ở đây
-          setPhoto('file://' + video.path);
-          setMediaType('video');
-          setIsRecording(false);
-          setTimeRecording(0);
-          if (timeIntervalRef.current) {
-            clearInterval(timeIntervalRef.current);
-          }
-          if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-          }
-        },
-        onRecordingError: error => {
-          console.error('onRecordingError:', error);
-          setIsRecording(false); // Dừng nếu lỗi
-          setTimeRecording(0);
-          if (timeIntervalRef.current) {
-            clearInterval(timeIntervalRef.current);
-          }
-          if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-          }
-          dispatch(
-            setMessage({
-              message: `Recording error: ${error.message}`,
-              type: 'error',
-            }),
-          );
-        },
-      });
-    } catch (e) {
-      console.error('Error calling startRecording:', e);
-      setIsRecording(false);
-      setTimeRecording(0);
-      if (timeIntervalRef.current) {
-        clearInterval(timeIntervalRef.current);
-      }
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      dispatch(
-        setMessage({message: `Failed to start recording: ${e}`, type: 'error'}),
-      );
-    }
-  }, [cameraRef, isRecording, cameraSettings, isCameraActive, dispatch]);
+  //   try {
+  //     await cameraRef.current.startRecording({
+  //       videoCodec: 'h265', // Hoặc 'h265' nếu thiết bị hỗ trợ tốt
+  //       fileType: 'mp4',
+  //       flash: cameraSettings.flash ? 'on' : 'off',
+  //       onRecordingFinished: video => {
+  //         console.log('onRecordingFinished:', video.path);
+  //         // Chỉ set photo nếu không phải do lỗi và state isRecording vẫn là true
+  //         // (để tránh ghi đè nếu stop bị gọi nhiều lần)
+  //         // Logic này sẽ đơn giản hơn nếu isRecording được set false ở stop
+  //         // Tạm thời vẫn set ở đây
+  //         // setPhoto('file://' + video.path);
+  //         // setMediaType('video'); // This line is removed
+  //         // setIsRecording(false);
+  //         // setTimeRecording(0);
+  //         // if (timeIntervalRef.current) {
+  //         //   clearInterval(timeIntervalRef.current);
+  //         // }
+  //         // if (timeoutRef.current) {
+  //         //   clearTimeout(timeoutRef.current);
+  //         // }
+  //       },
+  //       onRecordingError: error => {
+  //         console.error('onRecordingError:', error);
+  //         // setIsRecording(false); // Dừng nếu lỗi
+  //         // setTimeRecording(0);
+  //         // if (timeIntervalRef.current) {
+  //         //   clearInterval(timeIntervalRef.current);
+  //         // }
+  //         // if (timeoutRef.current) {
+  //         //   clearTimeout(timeoutRef.current);
+  //         // }
+  //         dispatch(
+  //           setMessage({
+  //             message: `Recording error: ${error.message}`,
+  //             type: 'error',
+  //           }),
+  //         );
+  //       },
+  //     });
+  //   } catch (e) {
+  //     console.error('Error calling startRecording:', e);
+  //     // setIsRecording(false);
+  //     // setTimeRecording(0);
+  //     // if (timeIntervalRef.current) {
+  //     //   clearInterval(timeIntervalRef.current);
+  //     // }
+  //     // if (timeoutRef.current) {
+  //     //   clearTimeout(timeoutRef.current);
+  //     // }
+  //     dispatch(
+  //       setMessage({message: `Failed to start recording: ${e}`, type: 'error'}),
+  //     );
+  //   }
+  // }, [cameraRef, isRecording, cameraSettings, isCameraActive, dispatch]);
 
-  const handleStopRecord = useCallback(async () => {
-    if (!cameraRef.current || !isRecording) {
-      return;
-    }
-    console.log('Stopping Record...');
-    // Clear các timer ngay lập tức
-    if (timeIntervalRef.current) {
-      clearInterval(timeIntervalRef.current);
-    }
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    timeIntervalRef.current = null;
-    timeoutRef.current = null;
+  // const handleStopRecord = useCallback(async () => {
+  //   if (!cameraRef.current || !isRecording) {
+  //     return;
+  //   }
+  //   console.log('Stopping Record...');
+  //   // Clear các timer ngay lập tức
+  //   if (timeIntervalRef.current) {
+  //     clearInterval(timeIntervalRef.current);
+  //   }
+  //   if (timeoutRef.current) {
+  //     clearTimeout(timeoutRef.current);
+  //   }
+  //   timeIntervalRef.current = null;
+  //   timeoutRef.current = null;
 
-    try {
-      await cameraRef.current.stopRecording();
-      // onRecordingFinished sẽ được gọi và cập nhật state photo, isRecording,...
-      console.log('stopRecording called successfully');
-    } catch (error: any) {
-      console.error('Stop recording error:', error);
-      // Vẫn reset state nếu stopRecording bị lỗi
-      setIsRecording(false);
-      setTimeRecording(0);
-      dispatch(
-        setMessage({
-          message: `Error stopping recording: ${error.message}`,
-          type: 'error',
-        }),
-      );
-    }
-  }, [cameraRef, isRecording, dispatch]);
+  //   try {
+  //     await cameraRef.current.stopRecording();
+  //     // onRecordingFinished sẽ được gọi và cập nhật state photo, isRecording,...
+  //     console.log('stopRecording called successfully');
+  //   } catch (error: any) {
+  //     console.error('Stop recording error:', error);
+  //     // Vẫn reset state nếu stopRecording bị lỗi
+  //     // setIsRecording(false);
+  //     // setTimeRecording(0);
+  //     dispatch(
+  //       setMessage({
+  //         message: `Error stopping recording: ${error.message}`,
+  //         type: 'error',
+  //       }),
+  //     );
+  //   }
+  // }, [cameraRef, isRecording, dispatch]);
 
   const handleZoomChange = useCallback((newZoom: number) => {
     setZoom(newZoom);
@@ -245,13 +245,13 @@ function CameraScreen() {
     }
     hapticFeedback();
     try {
-      const typeToSave = mediaType === 'image' ? 'photo' : 'video';
+      // const typeToSave = mediaType === 'image' ? 'photo' : 'video'; // Always 'photo'
       // Đảm bảo URI có tiền tố file:// nếu cần (CameraRoll thường tự xử lý)
       const saveUri = photo;
-      await CameraRoll.save(saveUri, {type: typeToSave});
+      await CameraRoll.save(saveUri, {type: 'photo'}); // Hardcode to 'photo'
       dispatch(
         setMessage({
-          message: `${mediaType.toUpperCase()} saved to gallery`,
+          message: `${mediaType?.toUpperCase()} saved to gallery`,
           type: 'success',
         }),
       );
@@ -259,7 +259,7 @@ function CameraScreen() {
       console.error('Save media error:', error);
       dispatch(
         setMessage({
-          message: `Error saving ${mediaType}: ${error.message}`,
+          message: `Error saving ${mediaType || 'media'}: ${error.message}`, // Fallback for mediaType
           type: 'error',
         }),
       );
@@ -328,14 +328,14 @@ function CameraScreen() {
             isActive={isCameraActive}
             zoom={zoom}
             photoUri={photo}
-            mediaType={mediaType}
+            mediaType={mediaType} // Will always be 'image' or null
             setZoom={setZoom}
           />
         </View>
         {/* Phần điều khiển */}
         <View width={'100%'} flex-2 centerV>
-          {/* Hiển thị timer khi đang quay */}
-          {isRecording && (
+          {/* Hiển thị timer khi đang quay - REMOVED */}
+          {/* {isRecording && (
             <View absT centerH marginT-s2 style={{zIndex: 1, width: '100%'}}>
               <View bg-red40 br10 paddingH-s1 paddingV-xs>
                 <Text white text60>
@@ -343,11 +343,11 @@ function CameraScreen() {
                 </Text>
               </View>
             </View>
-          )}
+          )} */}
           {/* Chọn bộ điều khiển phù hợp */}
           {!photo ? (
             <CameraControls
-              isRecording={isRecording}
+              // isRecording={isRecording} // REMOVED
               flashEnabled={!!cameraSettings?.flash}
               zoom={zoom}
               minZoom={device.minZoom ?? 1}
@@ -355,8 +355,8 @@ function CameraScreen() {
               onFlashToggle={handleFlashToggle}
               onSwitchCamera={handleSwitchCamera}
               onTakePicture={handleTakePicture}
-              onStartRecord={handleStartRecord}
-              onStopRecord={handleStopRecord}
+              // onStartRecord={handleStartRecord} // REMOVED
+              // onStopRecord={handleStopRecord} // REMOVED
               onZoomChange={handleZoomChange}
             />
           ) : (

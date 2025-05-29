@@ -1,17 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
-import { NotificationService } from '../services/notification.service';
+import { NotificationService } from '../services/notification.service'; // Uses placeholder service
 import { AuthRequest } from '../types/express';
 
-const notificationService = new NotificationService();
+const notificationService = new NotificationService(); // Instantiates placeholder service
 
 export class NotificationController {
   /**
-   * Get user notifications
+   * Get user notifications (Using Placeholder Service)
    */
   public async getNotifications(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.id;
-      
+
       if (!userId) {
         return res.status(401).json({
           status: 'error',
@@ -19,20 +19,22 @@ export class NotificationController {
           message: 'Unauthorized',
         });
       }
-      
+
       const { page = '1', limit = '20', unread_only = 'false' } = req.query;
-      
-      const notifications = await notificationService.getUserNotifications(
+      const pageNum = parseInt(page as string);
+      const limitNum = parseInt(limit as string);
+
+      const notificationsData = await notificationService.getUserNotifications( // Uses placeholder
         userId,
-        parseInt(page as string),
-        parseInt(limit as string),
-        unread_only === 'true'
+        pageNum,
+        limitNum,
+        unread_only === 'true',
       );
-      
+
       return res.status(200).json({
         status: 'success',
         data: {
-          notifications: notifications.rows.map(notification => ({
+          notifications: notificationsData.rows.map(notification => ({ // Map mock data
             id: notification.id,
             type: notification.type,
             reference_id: notification.reference_id,
@@ -41,10 +43,10 @@ export class NotificationController {
             created_at: notification.created_at,
           })),
           pagination: {
-            total: notifications.count,
-            page: parseInt(page as string),
-            limit: parseInt(limit as string),
-            pages: Math.ceil(notifications.count / parseInt(limit as string)),
+            total: notificationsData.count,
+            page: pageNum,
+            limit: limitNum,
+            pages: Math.ceil(notificationsData.count / limitNum),
           },
         },
       });
@@ -52,14 +54,14 @@ export class NotificationController {
       next(error);
     }
   }
-  
+
   /**
-   * Mark notification as read
+   * Mark notification as read (Using Placeholder Service)
    */
   public async markAsRead(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.id;
-      
+
       if (!userId) {
         return res.status(401).json({
           status: 'error',
@@ -67,54 +69,54 @@ export class NotificationController {
           message: 'Unauthorized',
         });
       }
-      
+
       const { id } = req.params;
-      
-      if (!id) {
+      const notificationIdNum = parseInt(id);
+
+      if (!notificationIdNum) {
         return res.status(400).json({
           status: 'error',
           code: 400,
-          message: 'Notification ID is required',
+          message: 'Notification ID is required and must be a number',
         });
       }
-      
-      const notification = await notificationService.getNotificationById(parseInt(id));
-      
+
+      const notification = await notificationService.getNotificationById(notificationIdNum); // Uses placeholder
+
       if (!notification) {
         return res.status(404).json({
           status: 'error',
           code: 404,
-          message: 'Notification not found',
+          message: 'Notification not found (placeholder)',
         });
       }
-      
-      // Check if notification belongs to the user
+
       if (notification.user_id !== userId) {
         return res.status(403).json({
           status: 'error',
           code: 403,
-          message: 'Not authorized to mark this notification as read',
+          message: 'Not authorized to mark this notification as read (placeholder)',
         });
       }
-      
-      await notificationService.markAsRead(parseInt(id));
-      
+
+      await notificationService.markAsRead(notificationIdNum); // Uses placeholder
+
       return res.status(200).json({
         status: 'success',
-        message: 'Notification marked as read',
+        message: 'Notification marked as read (placeholder)',
       });
     } catch (error) {
       next(error);
     }
   }
-  
+
   /**
-   * Mark all notifications as read
+   * Mark all notifications as read (Using Placeholder Service)
    */
   public async markAllAsRead(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.id;
-      
+
       if (!userId) {
         return res.status(401).json({
           status: 'error',
@@ -122,25 +124,25 @@ export class NotificationController {
           message: 'Unauthorized',
         });
       }
-      
-      await notificationService.markAllAsRead(userId);
-      
+
+      await notificationService.markAllAsRead(userId); // Uses placeholder
+
       return res.status(200).json({
         status: 'success',
-        message: 'All notifications marked as read',
+        message: 'All notifications marked as read (placeholder)',
       });
     } catch (error) {
       next(error);
     }
   }
-  
+
   /**
-   * Delete notification
+   * Delete notification (Using Placeholder Service)
    */
   public async deleteNotification(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.id;
-      
+
       if (!userId) {
         return res.status(401).json({
           status: 'error',
@@ -148,54 +150,54 @@ export class NotificationController {
           message: 'Unauthorized',
         });
       }
-      
+
       const { id } = req.params;
-      
-      if (!id) {
+      const notificationIdNum = parseInt(id);
+
+      if (!notificationIdNum) {
         return res.status(400).json({
           status: 'error',
           code: 400,
-          message: 'Notification ID is required',
+          message: 'Notification ID is required and must be a number',
         });
       }
-      
-      const notification = await notificationService.getNotificationById(parseInt(id));
-      
+
+      const notification = await notificationService.getNotificationById(notificationIdNum); // Uses placeholder
+
       if (!notification) {
         return res.status(404).json({
           status: 'error',
           code: 404,
-          message: 'Notification not found',
+          message: 'Notification not found (placeholder)',
         });
       }
-      
-      // Check if notification belongs to the user
+
       if (notification.user_id !== userId) {
         return res.status(403).json({
           status: 'error',
           code: 403,
-          message: 'Not authorized to delete this notification',
+          message: 'Not authorized to delete this notification (placeholder)',
         });
       }
-      
-      await notificationService.deleteNotification(parseInt(id));
-      
+
+      await notificationService.deleteNotification(notificationIdNum); // Uses placeholder
+
       return res.status(200).json({
         status: 'success',
-        message: 'Notification deleted successfully',
+        message: 'Notification deleted successfully (placeholder)',
       });
     } catch (error) {
       next(error);
     }
   }
-  
+
   /**
-   * Get unread notification count
+   * Get unread notification count (Using Placeholder Service)
    */
   public async getUnreadCount(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.id;
-      
+
       if (!userId) {
         return res.status(401).json({
           status: 'error',
@@ -203,9 +205,9 @@ export class NotificationController {
           message: 'Unauthorized',
         });
       }
-      
-      const count = await notificationService.getUnreadCount(userId);
-      
+
+      const count = await notificationService.getUnreadCount(userId); // Uses placeholder
+
       return res.status(200).json({
         status: 'success',
         data: {

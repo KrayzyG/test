@@ -13,156 +13,80 @@ import {runOnJS} from 'react-native-reanimated';
 import {hapticFeedback} from '../../util/haptic'; // Điều chỉnh đường dẫn
 
 interface CaptureButtonProps {
-  isRecording: boolean;
-  zoom: number;
-  minZoom: number;
-  maxZoom: number;
+  // isRecording: boolean; // Removed
+  zoom: number; // Retained for potential future use with pinch-to-zoom on preview
+  minZoom: number; // Retained
+  maxZoom: number; // Retained
   onTakePicture: () => void;
-  onStartRecord: () => void;
-  onStopRecord: () => void;
-  onZoomChange: (newZoom: number) => void;
-  longPressDurationMs?: number;
-  zoomSensitivity?: number;
+  // onStartRecord: () => void; // Removed
+  // onStopRecord: () => void; // Removed
+  onZoomChange: (newZoom: number) => void; // Retained for pinch-to-zoom on preview
+  // longPressDurationMs?: number; // Removed
+  // zoomSensitivity?: number; // Removed
 }
 
 const CaptureButton: React.FC<CaptureButtonProps> = ({
-  isRecording,
+  // isRecording, // Removed
   zoom,
   minZoom,
   maxZoom,
   onTakePicture,
-  onStartRecord,
-  onStopRecord,
+  // onStartRecord, // Removed
+  // onStopRecord, // Removed
   onZoomChange,
-  longPressDurationMs = 250,
-  zoomSensitivity = 0.01,
+  // longPressDurationMs = 250, // Removed
+  // zoomSensitivity = 0.01, // Removed
 }) => {
-  const pressTimer = useRef<NodeJS.Timeout | null>(null);
-  const startYPan = useRef(0); // Lưu Y ban đầu khi bắt đầu Pan
-  const startZoomPan = useRef(zoom); // Lưu zoom ban đầu khi bắt đầu Pan
-  const isGestureActive = useRef(false); // Cờ chung cho biết gesture đang hoạt động
+  // const pressTimer = useRef<NodeJS.Timeout | null>(null); // Removed: related to long press for video
+  // const startYPan = useRef(0); // Removed: related to pan to zoom
+  // const startZoomPan = useRef(zoom); // Removed
+  // const isGestureActive = useRef(false); // Removed
 
-  // Cập nhật startZoomPan khi zoom prop thay đổi từ bên ngoài
-  useEffect(() => {
-    startZoomPan.current = zoom;
-  }, [zoom]);
+  // // Cập nhật startZoomPan khi zoom prop thay đổi từ bên ngoài - No longer needed for pan zoom
+  // useEffect(() => {
+  //   startZoomPan.current = zoom;
+  // }, [zoom]);
 
-  const handleLongPressStateChange = (
-    event: LongPressGestureHandlerGestureEvent,
-  ) => {
-    const {nativeEvent} = event;
-
-    if (nativeEvent.state === GestureState.BEGAN) {
-      isGestureActive.current = true;
-      // Bắt đầu timer khi nhấn xuống
-      if (pressTimer.current) {
-        clearTimeout(pressTimer.current);
-      }
-      pressTimer.current = setTimeout(() => {
-        if (isGestureActive.current) {
-          // Kiểm tra xem còn nhấn không
-          hapticFeedback();
-          startZoomPan.current = zoom; // Lưu zoom hiện tại trước khi quay
-          runOnJS(onStartRecord)();
-          pressTimer.current = null;
-        }
-      }, longPressDurationMs);
-    } else if (
-      nativeEvent.state === GestureState.END ||
-      nativeEvent.state === GestureState.CANCELLED ||
-      nativeEvent.state === GestureState.FAILED
-    ) {
-      // Ưu tiên: Nếu timer còn -> Tap -> Chụp ảnh
-      if (pressTimer.current) {
-        clearTimeout(pressTimer.current);
-        pressTimer.current = null;
-        hapticFeedback();
-        runOnJS(onTakePicture)();
-      }
-      // Nếu không còn timer và đang quay -> Dừng quay
-      else if (isRecording) {
-        runOnJS(onStopRecord)();
-      }
-      isGestureActive.current = false; // Reset cờ khi gesture kết thúc
-    }
+  const handlePress = () => {
+    hapticFeedback();
+    onTakePicture();
   };
 
-  const handlePanGestureEvent = (event: PanGestureHandlerGestureEvent) => {
-    // Chỉ xử lý Pan khi đang quay phim
-    if (isRecording && isGestureActive.current) {
-      // Chỉ zoom khi đang nhấn giữ (quay)
-      const {translationY, state} = event.nativeEvent;
-
-      if (state === GestureState.BEGAN) {
-        startYPan.current = translationY; // Lưu vị trí Y tương đối ban đầu của Pan
-        startZoomPan.current = zoom; // Lưu zoom hiện tại
-      } else if (state === GestureState.ACTIVE) {
-        const deltaY = startYPan.current - translationY; // Kéo lên deltaY dương
-        const zoomChange = deltaY * zoomSensitivity;
-        const newZoomCalculated = startZoomPan.current + zoomChange;
-        const newZoomClamped = Math.min(
-          Math.max(newZoomCalculated, minZoom),
-          maxZoom,
-        );
-
-        if (Math.abs(newZoomClamped - zoom) > 0.01) {
-          runOnJS(onZoomChange)(newZoomClamped);
-        }
-      } else if (
-        state === GestureState.END ||
-        state === GestureState.CANCELLED ||
-        state === GestureState.FAILED
-      ) {
-        // Không làm gì khi Pan kết thúc, LongPress sẽ xử lý việc dừng quay
-        // Cập nhật lại startZoom sau khi kéo xong để lần kéo tiếp theo đúng
-        startZoomPan.current = zoom;
-      }
-    }
-  };
+  // PanGestureHandler and related logic for zoom is removed.
+  // Zoom will be handled by CameraPreview's pinch gesture if available.
 
   return (
-    // Kết hợp LongPress và Pan
-    // PanGestureHandler bao ngoài để bắt sự kiện kéo
-    <PanGestureHandler
-      onGestureEvent={handlePanGestureEvent}
-      onHandlerStateChange={handlePanGestureEvent} // Pan cũng cần state change để lấy BEGAN/END
-      enabled={isRecording} // Chỉ bật Pan khi đang quay
-    >
-      <View>
-        {/* View trung gian để Pan và LongPress không xung đột trực tiếp */}
-        <LongPressGestureHandler
-          minDurationMs={longPressDurationMs}
-          onHandlerStateChange={handleLongPressStateChange}
-          // Không cần onGestureEvent cho LongPress vì Pan đã xử lý kéo
-        >
-          <View // View nhận chạm cho LongPress và hiển thị nút
-            style={{alignItems: 'center', justifyContent: 'center'}}>
-            <View // Vòng tròn ngoài
-              style={{
-                width: 70, // Kích thước nút
-                height: 70,
-                borderRadius: 35,
-                borderWidth: isRecording ? 4 : 2,
-                borderColor: isRecording ? Colors.red30 : Colors.grey40,
-                padding: 5,
-                backgroundColor: Colors.rgba(Colors.grey40, 0.2), // Nền mờ nhẹ
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <View // Chấm/Hình vuông bên trong
-                style={{
-                  width: isRecording ? 30 : 50,
-                  height: isRecording ? 30 : 50,
-                  borderRadius: isRecording ? 8 : 25, // Chuyển sang vuông khi quay
-                  backgroundColor: isRecording ? Colors.red40 : Colors.white, // Đổi màu
-                }}
-              />
-            </View>
-          </View>
-        </LongPressGestureHandler>
+    // Simplified: No PanGestureHandler, LongPressGestureHandler becomes TouchableOpacity
+    <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
+      <View // View nhận chạm cho LongPress và hiển thị nút
+        style={{alignItems: 'center', justifyContent: 'center'}}>
+        <View // Vòng tròn ngoài
+          style={{
+            width: 70, // Kích thước nút
+            height: 70,
+            borderRadius: 35,
+            borderWidth: 2, // No longer changes with isRecording
+            borderColor: Colors.grey40, // No longer changes with isRecording
+            padding: 5,
+            backgroundColor: Colors.rgba(Colors.grey40, 0.2), // Nền mờ nhẹ
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <View // Chấm/Hình vuông bên trong
+            style={{
+              width: 50, // Fixed size (was conditional on isRecording)
+              height: 50, // Fixed size
+              borderRadius: 25, // Fixed shape (was conditional on isRecording)
+              backgroundColor: Colors.white, // Fixed color (was conditional on isRecording)
+            }}
+          />
+        </View>
       </View>
-    </PanGestureHandler>
+    </TouchableOpacity>
   );
 };
+
+// Need to import TouchableOpacity
+import {TouchableOpacity} from 'react-native';
 
 export default CaptureButton;

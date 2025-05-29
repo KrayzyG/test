@@ -6,7 +6,7 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
-    "start": "react-native start",
+    "start": "expo start",
     "test": "jest",
     "postinstall": "cd android && ./gradlew :app:downloadAar",
     "build-android": "./build-android.sh",
@@ -56,9 +56,10 @@
     "react-native-text-ticker": "^1.14.0",
     "react-native-ui-lib": "^7.35.0",
     "react-native-video": "^6.10.2",
-    "react-native-video-trim": "^3.0.2",
     "react-native-vision-camera": "4.3.1",
     "react-redux": "^9.2.0",
+    "expo-dev-client": "^4.0.19",
+    "expo-status-bar": "~1.12.1",
     "redux-persist": "^6.0.0",
     "rn-emoji-keyboard": "^1.7.0",
     "socket.io-client": "^4.8.1",
@@ -79,7 +80,8 @@
     "jest": "^29.6.3",
     "prettier": "2.8.8",
     "react-test-renderer": "18.2.0",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "expo": "^51.0.20"
   },
   "engines": {
     "node": ">=18"

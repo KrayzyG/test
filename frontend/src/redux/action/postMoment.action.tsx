@@ -8,14 +8,14 @@ import {
   uploadImage,
 } from '../../util/uploadImage';
 import {loginHeader} from '../../util/constrain';
-import {
-  compressVideo,
-  getDownloadVideoUrl,
-  getVideoThumbnail,
-  initiateUploadVideo,
-  UPLOAD_VIDEO_PROGRESS_STAGE,
-  uploadVideo,
-} from '../../util/uploadVideo';
+// import {
+//   compressVideo,
+//   getDownloadVideoUrl,
+//   getVideoThumbnail,
+//   initiateUploadVideo,
+//   UPLOAD_VIDEO_PROGRESS_STAGE,
+//   uploadVideo,
+// } from '../../util/uploadVideo'; // Commented out: Video specific
 import {readFileAsBytes} from '../../util/getBufferFile';
 import {wrapCancelable} from '../../helper/wrapCancelable';
 import {
@@ -93,30 +93,39 @@ export const uploadImageToFirebaseStorage = createAsyncThunk(
       };
 
       const response = await wrapCancelable(
+        // Update the API endpoint to the new local backend endpoint
         axios.post(
-          'https://api.locketcamera.com/postMomentV2',
+          // Assuming the local backend is running on localhost:3000 (adjust if different)
+          // and the frontend proxy is set up, or using full URL for local dev.
+          // For now, let's use a relative path, assuming proxy or same origin.
+          '/api/v1/moments', // New local backend endpoint
           bodyPostMoment,
           {
             headers: {
-              ...loginHeader,
-              Authorization: `Bearer ${idToken}`,
+              // ...loginHeader, // loginHeader might contain other headers not needed or specific to the old API
+              'Content-Type': 'application/json', // Standard header
+              Authorization: `Bearer ${idToken}`, // Auth token
             },
           },
         ),
         thunkApi.signal,
       );
-      console.log(JSON.stringify(response.data));
+      // console.log(JSON.stringify(response.data)); // Keep for debugging if needed
 
-      // Kiểm tra phản hồi từ server
-      if (!response.data.result || response.data.result.status >= 400) {
+      // Kiểm tra phản hồi từ server - Adjust for the new local API response structure
+      // The new local API will have a different response structure.
+      // For now, we'll assume a successful response (status 2xx) means success.
+      // More specific error handling can be added later based on the local API's design.
+      if (response.status >= 400) {
         throw new Error(
-          JSON.stringify(response?.data?.result?.errors || t('unknow_error')),
+          JSON.stringify(response?.data?.message || response?.data?.errors || t('unknow_error')),
         );
       }
 
       // Hiển thị hoàn tất
       showProgress(thunkApi, UPLOAD_PROGRESS_STAGE.CREATING_MOMENT, 100);
       thunkApi.dispatch(setTask(null));
+      // Return the response data from the local API
       return response.data;
     } catch (error: any) {
       // Nếu có lỗi thì hiển thị lỗi và reject thunk
@@ -134,135 +143,135 @@ export const uploadImageToFirebaseStorage = createAsyncThunk(
   },
 );
 
-export const uploadVideoToFirebase = createAsyncThunk(
-  'upload-video',
-  async (data: DataPostMoment, thunkApi) => {
-    try {
-      const {idUser, idToken, videoInfo, friend, overlay} = data;
+// export const uploadVideoToFirebase = createAsyncThunk(
+//   'upload-video',
+//   async (data: DataPostMoment, thunkApi) => {
+//     try {
+//       const {idUser, idToken, videoInfo, friend, overlay} = data;
 
-      // Hiển thị bước bắt đầu xử lý video
-      showProgress(thunkApi, UPLOAD_VIDEO_PROGRESS_STAGE.PROCESSING, 0.1);
+//       // Hiển thị bước bắt đầu xử lý video
+//       showProgress(thunkApi, UPLOAD_VIDEO_PROGRESS_STAGE.PROCESSING, 0.1);
 
-      // Nén video và theo dõi tiến trình
-      const newVideo = await compressVideo(
-        videoInfo,
-        undefined, // cancelId (không cần ở đây)
-        progress => {
-          showProgress(
-            thunkApi,
-            UPLOAD_VIDEO_PROGRESS_STAGE.PROCESSING,
-            progress,
-          );
-        },
-        err => {
-          thunkApi.dispatch(
-            setMessage({
-              message: `${JSON.stringify(err)}`,
-              type: t('error'),
-            }),
-          );
-          return thunkApi.rejectWithValue(err);
-        },
-        thunkApi.signal, // truyền vào để có thể cancel
-      );
+//       // Nén video và theo dõi tiến trình
+//       const newVideo = await compressVideo(
+//         videoInfo,
+//         undefined, // cancelId (không cần ở đây)
+//         progress => {
+//           showProgress(
+//             thunkApi,
+//             UPLOAD_VIDEO_PROGRESS_STAGE.PROCESSING,
+//             progress,
+//           );
+//         },
+//         err => {
+//           thunkApi.dispatch(
+//             setMessage({
+//               message: `${JSON.stringify(err)}`,
+//               type: t('error'),
+//             }),
+//           );
+//           return thunkApi.rejectWithValue(err);
+//         },
+//         thunkApi.signal, // truyền vào để có thể cancel
+//       );
 
-      // Đọc nội dung file video ra buffer
-      const videoBlob = await wrapCancelable(
-        readFileAsBytes(newVideo.uri),
-        thunkApi.signal,
-      );
+//       // Đọc nội dung file video ra buffer
+//       const videoBlob = await wrapCancelable(
+//         readFileAsBytes(newVideo.uri),
+//         thunkApi.signal,
+//       );
 
-      if (!videoBlob) {
-        thunkApi.dispatch(
-          setMessage({
-            message: t('error_read_file'),
-            type: t('error'),
-          }),
-        );
-        throw new Error(t('error_read_file'));
-      }
+//       if (!videoBlob) {
+//         thunkApi.dispatch(
+//           setMessage({
+//             message: t('error_read_file'),
+//             type: t('error'),
+//           }),
+//         );
+//         throw new Error(t('error_read_file'));
+//       }
 
-      const nameVideo = `${Date.now()}_vtd182.mp4`;
+//       const nameVideo = `${Date.now()}_vtd182.mp4`;
 
-      // Hiển thị tiến trình khởi tạo upload
-      showProgress(thunkApi, UPLOAD_VIDEO_PROGRESS_STAGE.INITIATING_UPLOAD, 10);
+//       // Hiển thị tiến trình khởi tạo upload
+//       showProgress(thunkApi, UPLOAD_VIDEO_PROGRESS_STAGE.INITIATING_UPLOAD, 10);
 
-      // Lấy URL để upload video
-      const uploadUrl = await wrapCancelable(
-        initiateUploadVideo(idUser, idToken, newVideo.size, nameVideo),
-        thunkApi.signal,
-      );
+//       // Lấy URL để upload video
+//       const uploadUrl = await wrapCancelable(
+//         initiateUploadVideo(idUser, idToken, newVideo.size, nameVideo),
+//         thunkApi.signal,
+//       );
 
-      // Bắt đầu upload video
-      showProgress(thunkApi, UPLOAD_VIDEO_PROGRESS_STAGE.UPLOADING, 26);
-      await wrapCancelable(
-        uploadVideo(uploadUrl, videoBlob, idToken),
-        thunkApi.signal,
-      );
+//       // Bắt đầu upload video
+//       showProgress(thunkApi, UPLOAD_VIDEO_PROGRESS_STAGE.UPLOADING, 26);
+//       await wrapCancelable(
+//         uploadVideo(uploadUrl, videoBlob, idToken),
+//         thunkApi.signal,
+//       );
 
-      // Lấy đường dẫn tải video
-      showProgress(
-        thunkApi,
-        UPLOAD_VIDEO_PROGRESS_STAGE.FETCHING_DOWNLOAD_URL,
-        48,
-      );
-      const downloadVideoUrl = await wrapCancelable(
-        getDownloadVideoUrl(idUser, idToken, nameVideo),
-        thunkApi.signal,
-      );
+//       // Lấy đường dẫn tải video
+//       showProgress(
+//         thunkApi,
+//         UPLOAD_VIDEO_PROGRESS_STAGE.FETCHING_DOWNLOAD_URL,
+//         48,
+//       );
+//       const downloadVideoUrl = await wrapCancelable(
+//         getDownloadVideoUrl(idUser, idToken, nameVideo),
+//         thunkApi.signal,
+//       );
 
-      // Upload thumbnail của video
-      showProgress(
-        thunkApi,
-        UPLOAD_VIDEO_PROGRESS_STAGE.UPLOADING_THUMBNAIL,
-        60,
-      );
-      const thumbnailUrl = await wrapCancelable(
-        uploadThumbnail(videoInfo, idToken, idUser),
-        thunkApi.signal,
-      );
+//       // Upload thumbnail của video
+//       showProgress(
+//         thunkApi,
+//         UPLOAD_VIDEO_PROGRESS_STAGE.UPLOADING_THUMBNAIL,
+//         60,
+//       );
+//       const thumbnailUrl = await wrapCancelable(
+//         uploadThumbnail(videoInfo, idToken, idUser),
+//         thunkApi.signal,
+//       );
 
-      // Gửi yêu cầu tạo moment mới
-      showProgress(thunkApi, UPLOAD_VIDEO_PROGRESS_STAGE.CREATING_MOMENT, 88);
-      const postHeaders = {
-        'content-type': 'application/json',
-        authorization: `Bearer ${idToken}`,
-      };
+//       // Gửi yêu cầu tạo moment mới
+//       showProgress(thunkApi, UPLOAD_VIDEO_PROGRESS_STAGE.CREATING_MOMENT, 88);
+//       const postHeaders = {
+//         'content-type': 'application/json',
+//         authorization: `Bearer ${idToken}`,
+//       };
 
-      const bodyPostMoment = createBodyVideo(
-        thumbnailUrl,
-        downloadVideoUrl,
-        friend || [],
-        overlay,
-      );
-      const response = await wrapCancelable(
-        axios.post(
-          'https://api.locketcamera.com/postMomentV2',
-          bodyPostMoment,
-          {headers: postHeaders},
-        ),
-        thunkApi.signal,
-      );
+//       const bodyPostMoment = createBodyVideo(
+//         thumbnailUrl,
+//         downloadVideoUrl,
+//         friend || [],
+//         overlay,
+//       );
+//       const response = await wrapCancelable(
+//         axios.post(
+//           'https://api.locketcamera.com/postMomentV2',
+//           bodyPostMoment,
+//           {headers: postHeaders},
+//         ),
+//         thunkApi.signal,
+//       );
 
-      // Nếu thành công, cập nhật tiến trình hoàn tất
-      showProgress(thunkApi, UPLOAD_PROGRESS_STAGE.CREATING_MOMENT, 100);
-      thunkApi.dispatch(setTask(null));
-      return response.data;
-    } catch (error: any) {
-      // Xử lý lỗi và hiển thị thông báo lỗi
-      thunkApi.dispatch(setTask(null));
-      thunkApi.dispatch(
-        setMessage({
-          message: `${JSON.stringify(error?.response?.data) || error.message}`,
-          type: t('error'),
-        }),
-      );
-      return thunkApi.rejectWithValue(
-        error?.response?.data?.error || error.message,
-      );
-    }
-  },
-);
+//       // Nếu thành công, cập nhật tiến trình hoàn tất
+//       showProgress(thunkApi, UPLOAD_PROGRESS_STAGE.CREATING_MOMENT, 100);
+//       thunkApi.dispatch(setTask(null));
+//       return response.data;
+//     } catch (error: any) {
+//       // Xử lý lỗi và hiển thị thông báo lỗi
+//       thunkApi.dispatch(setTask(null));
+//       thunkApi.dispatch(
+//         setMessage({
+//           message: `${JSON.stringify(error?.response?.data) || error.message}`,
+//           type: t('error'),
+//         }),
+//       );
+//       return thunkApi.rejectWithValue(
+//         error?.response?.data?.error || error.message,
+//       );
+//     }
+//   },
+// );
 
 export const momentReaction = createAsyncThunk(
   'momentReaction',
@@ -306,30 +315,30 @@ export const momentReaction = createAsyncThunk(
   },
 );
 
-const uploadThumbnail = async (
-  uriVideo: string,
-  idToken: string,
-  idUser: string,
-) => {
-  const thumbnail = await getVideoThumbnail(uriVideo);
+// const uploadThumbnail = async (
+//   uriVideo: string,
+//   idToken: string,
+//   idUser: string,
+// ) => {
+//   const thumbnail = await getVideoThumbnail(uriVideo);
 
-  if (!thumbnail) {
-    throw new Error(t('can_not_create_thumbnail'));
-  }
-  const nameThumbnail = `${Date.now()}_vtd182.jpg`;
+//   if (!thumbnail) {
+//     throw new Error(t('can_not_create_thumbnail'));
+//   }
+//   const nameThumbnail = `${Date.now()}_vtd182.jpg`;
 
-  const blobThumbnail = await readFileAsBytes(thumbnail.path);
-  const size = blobThumbnail?.byteLength;
-  if (!blobThumbnail || !size) {
-    throw new Error(t('error_read_file'));
-  }
-  const upload_url = await initiateUpload(idUser, idToken, size, nameThumbnail);
+//   const blobThumbnail = await readFileAsBytes(thumbnail.path);
+//   const size = blobThumbnail?.byteLength;
+//   if (!blobThumbnail || !size) {
+//     throw new Error(t('error_read_file'));
+//   }
+//   const upload_url = await initiateUpload(idUser, idToken, size, nameThumbnail);
 
-  await uploadImage(upload_url, blobThumbnail, idToken);
+//   await uploadImage(upload_url, blobThumbnail, idToken);
 
-  const downloadUrl = await getDownloadUrl(idUser, idToken, nameThumbnail);
-  return downloadUrl;
-};
+//   const downloadUrl = await getDownloadUrl(idUser, idToken, nameThumbnail);
+//   return downloadUrl;
+// };
 
 const showProgress = (thunkApi: any, message: string, progress: number) => {
   thunkApi.dispatch(

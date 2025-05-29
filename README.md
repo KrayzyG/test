@@ -75,18 +75,24 @@ The server will be running at http://localhost:3000.
 
 4. Update the `.env` file with your backend API URL and other configurations.
 
-5. Start the development server:
+5. Start the development server with Expo Dev Client:
    ```
-   npm start
+   npx expo start --dev-client
    ```
 
-6. Follow the instructions in the terminal to open the app in a web browser, iOS simulator, or Android emulator.
+6. Follow the instructions in the terminal. You will need a development build of the app installed on your emulator or device to run the project. You can build one using `npx eas build -p android --profile development` or `npx eas build -p ios --profile development` (requires EAS CLI and an Expo account).
+Alternatively, for web, you might be able to run `npx expo start --web` if web compatibility is maintained.
+
+**Important API Note:**
+The backend is currently in a **placeholder state**.
+- The primary endpoint for creating new moments is `POST /api/v1/moments`. The frontend uploads the image to Firebase Storage and sends the `thumbnail_url` along with `recipients` and `overlays` in the request body (e.g., `{ data: { thumbnail_url, recipients, overlays } }`) to this endpoint. This endpoint currently only returns a placeholder success message.
+- All other backend API endpoints (e.g., for authentication, user management, friend management, photo history) are also placeholders. They will return mock data and **require full implementation by the user** to function correctly with a database and other necessary services.
 
 ## Features
 
 - User authentication (register, login, forgot password)
 - Friend management (add, accept, reject, remove)
-- Photo sharing with friends
+- Photo sharing with friends (Video functionality has been removed)
 - Real-time notifications
 - Offline support
 - Device management
@@ -111,15 +117,20 @@ The server will be running at http://localhost:3000.
 
 ### Frontend
 
-1. Build the production version:
-   ```
-   cd frontend
-   expo build:android  # For Android
-   expo build:ios      # For iOS
-   expo build:web      # For web
-   ```
+1.  Ensure your `app.json` (specifically the `expo` object) is correctly configured for production (bundle identifiers, versions, etc.).
+2.  Build the production version using EAS Build:
+    ```
+    cd frontend
+    npx eas build -p android --profile production
+    npx eas build -p ios --profile production
+    ```
+    For web, if configured:
+    ```
+    npx expo export -p web
+    ```
+    This will create a `web-build` directory which can be deployed to a static host.
 
-2. Follow the Expo documentation for publishing to app stores.
+3.  Follow the Expo (EAS) documentation for submitting to app stores or deploying the web build.
 
 ## Testing
 

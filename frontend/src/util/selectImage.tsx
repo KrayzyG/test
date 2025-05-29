@@ -12,7 +12,7 @@ export const selectMedia = async (
   try {
     await requestMediaPermission();
     const result = await launchImageLibrary({
-      mediaType: 'mixed', // Chọn chỉ ảnh
+      mediaType: 'photo', // Chọn chỉ ảnh
       quality: 1, // Chất lượng ảnh (0.0 - 1.0)
       selectionLimit: isMultiple ? 4 : 1, // 0 cho phép chọn nhiều ảnh
     });
@@ -31,12 +31,12 @@ export const takePhoto = async (): Promise<Array<Asset> | undefined | null> => {
   try {
     await requestCameraPermission();
     const result = await launchCamera({
-      durationLimit: 7,
-      videoQuality: 'medium',
-      mediaType: 'mixed',
+      // durationLimit: 7, // Removed: video-specific
+      // videoQuality: 'medium', // Removed: video-specific
+      mediaType: 'photo', // Changed to 'photo'
       maxWidth: 1020,
       maxHeight: 1020,
-      formatAsMp4: true,
+      // formatAsMp4: true, // Removed: video-specific
       quality: 1,
     });
 

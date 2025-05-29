@@ -16,4 +16,16 @@ router.use('/photos', photoRoutes);
 router.use('/devices', deviceRoutes);
 router.use('/notifications', notificationRoutes);
 
+
+// V1 Router
+const v1Router = Router();
+import { momentRouter } from './moment.routes';
+v1Router.use('/moments', momentRouter);
+
+// Mount the v1 router under /v1
+// This means the effective path for moments will be /api/v1/moments
+// when combined with app.use('/api', routes) in app.ts
+router.use('/v1', v1Router);
+
+
 export default router;

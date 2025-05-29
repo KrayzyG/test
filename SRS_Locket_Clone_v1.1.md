@@ -16,16 +16,18 @@ Tài liệu này mô tả các yêu cầu chi tiết cho việc phát triển �
 Ứng dụng Locket Clone sẽ được phát triển cho cả nền tảng iOS và Android sử dụng React Native. Phía máy chủ sẽ được phát triển bằng Node.js, Express và TypeScript, với cơ sở dữ liệu MySQL. Lưu trữ ảnh và dữ liệu sẽ sử dụng Firebase Storage, thông báo đẩy qua Firebase Cloud Messaging (FCM), đồng bộ hóa dữ liệu giữa các thiết bị qua API, và gửi email qua Nodemailer.  
 
 ### 1.3 Định nghĩa & Từ viết tắt  
-- **SRS:** Software Requirements Specification  
-- **API:** Application Programming Interface  
-- **UI:** User Interface  
+- **SRS:** Software Requirements Specification
+- **API:** Application Programming Interface
+- **UI:** User Interface
 - **UX:** User Experience  
 - **CRUD:** Create, Read, Update, Delete  
 - **JWT:** JSON Web Token  
-- **FCM:** Firebase Cloud Messaging  
-- **Push Notification:** Thông báo đẩy  
-- **Widget:** Tiện ích hiển thị trên màn hình chính của thiết bị di động  
-- **Nodemailer:** Thư viện gửi email cho Node.js  
+- **FCM:** Firebase Cloud Messaging
+- **Push Notification:** Thông báo đẩy
+- **Widget:** Tiện ích hiển thị trên màn hình chính của thiết bị di động
+- **Nodemailer:** Thư viện gửi email cho Node.js
+- **Expo CLI:** Công cụ dòng lệnh cho Expo
+- **EAS CLI:** Công cụ dòng lệnh cho Expo Application Services
 
 ---
 
@@ -81,13 +83,13 @@ Locket Clone là một ứng dụng di động cho phép người dùng chia s�
   - Truy cập vào lịch sử ảnh  
   - Thông báo ảnh mới (qua FCM)  
 
-- **Màn hình chụp ảnh**  
-  - Hiển thị camera trực tiếp  
-  - Các tùy chọn chỉnh sửa đơn giản (filter, sticker)  
-  - Nút chụp và gửi ảnh  
-  - Danh sách bạn bè được chọn để gửi ảnh  
+- **Màn hình chụp ảnh**
+  - Hiển thị camera trực tiếp (Chỉ hỗ trợ chụp ảnh, không quay video)
+  - Các tùy chọn chỉnh sửa đơn giản cho ảnh (filter, sticker)
+  - Nút chụp và gửi ảnh
+  - Danh sách bạn bè được chọn để gửi ảnh
 
-- **Màn hình bạn bè**  
+- **Màn hình bạn bè**
   - Danh sách bạn bè hiện tại  
   - Tìm kiếm và thêm bạn mới  
   - Hiển thị mã QR cá nhân  
@@ -137,14 +139,14 @@ Locket Clone là một ứng dụng di động cho phép người dùng chia s�
 - **F2.4:** Người dùng có thể chấp nhận hoặc từ chối yêu cầu kết bạn  
 - **F2.5:** Người dùng có thể xóa bạn bè khỏi danh sách  
 
-#### 3.2.3 Chụp và chia sẻ ảnh  
-- **F3.1:** Người dùng có thể chụp ảnh từ ứng dụng  
-- **F3.2:** Người dùng có thể áp dụng bộ lọc và sticker đơn giản  
-- **F3.3:** Người dùng có thể chọn một hoặc nhiều bạn bè để gửi ảnh  
-- **F3.4:** Người dùng có thể xem trạng thái gửi và nhận ảnh  
-- **F3.5:** Người dùng có thể xóa ảnh đã gửi (trước khi được xem)  
+#### 3.2.3 Chụp và chia sẻ ảnh
+- **F3.1:** Người dùng có thể chụp ảnh từ ứng dụng. (Chức năng quay video đã bị loại bỏ)
+- **F3.2:** Người dùng có thể áp dụng bộ lọc và sticker đơn giản cho ảnh.
+- **F3.3:** Người dùng có thể chọn một hoặc nhiều bạn bè để gửi ảnh.
+- **F3.4:** Người dùng có thể xem trạng thái gửi và nhận ảnh.
+- **F3.5:** Người dùng có thể xóa ảnh đã gửi (trước khi được xem).
 
-#### 3.2.4 Widget và hiển thị  
+#### 3.2.4 Widget và hiển thị
 - **F4.1:** Ứng dụng cung cấp widget cho màn hình chính  
 - **F4.2:** Widget hiển thị ảnh mới nhất từ bạn bè  
 - **F4.3:** Widget tự động cập nhật khi có ảnh mới (qua FCM)  
@@ -168,9 +170,9 @@ Locket Clone là một ứng dụng di động cho phép người dùng chia s�
 ### 3.3 Yêu cầu phi chức năng  
 
 #### 3.3.1 Hiệu suất  
-- **P1:** Thời gian gửi ảnh từ thiết bị đến máy chủ không quá 3 giây với kết nối mạng ổn định  
-- **P2:** Thời gian cập nhật widget khi có ảnh mới không quá 5 giây  
-- **P3:** Ứng dụng phải xử lý ít nhất 1000 yêu cầu đồng thời trên máy chủ  
+- **P1:** Thời gian gửi ảnh từ thiết bị đến máy chủ không quá 3 giây với kết nối mạng ổn định. (Chỉ áp dụng cho ảnh)
+- **P2:** Thời gian cập nhật widget khi có ảnh mới không quá 5 giây.
+- **P3:** Ứng dụng phải xử lý ít nhất 1000 yêu cầu đồng thời trên máy chủ.
 - **P4:** Tiêu thụ pin của widget không vượt quá 5% pin mỗi ngày  
 - **P5:** Ứng dụng phải khởi động trong vòng 2 giây  
 
@@ -284,41 +286,46 @@ devices
 ### 4.3 API Endpoints  
 
 #### 4.3.1 Xác thực  
-- `POST /api/auth/register` - Đăng ký người dùng mới  
-- `POST /api/auth/login` - Đăng nhập  
-- `POST /api/auth/refresh` - Làm mới token  
-- `POST /api/auth/password/reset` - Yêu cầu đặt lại mật khẩu (gửi email qua Nodemailer)  
-- `PUT /api/auth/password/update` - Cập nhật mật khẩu mới  
+(Lưu ý: Các API endpoint sau đây hiện là placeholder và trả về dữ liệu giả lập. Cần người dùng hoàn thiện để hoạt động đầy đủ.)
+- `POST /api/auth/register` - Đăng ký người dùng mới
+- `POST /api/auth/login` - Đăng nhập
+- `POST /api/auth/refresh` - Làm mới token
+- `POST /api/auth/password/reset` - Yêu cầu đặt lại mật khẩu (gửi email qua Nodemailer)
+- `PUT /api/auth/password/update` - Cập nhật mật khẩu mới
 
 #### 4.3.2 Quản lý người dùng  
-- `GET /api/users/me` - Lấy thông tin người dùng hiện tại  
-- `PUT /api/users/me` - Cập nhật thông tin người dùng  
-- `DELETE /api/users/me` - Xóa tài khoản  
-- `GET /api/users/search` - Tìm kiếm người dùng  
+(Lưu ý: Các API endpoint sau đây hiện là placeholder và trả về dữ liệu giả lập. Cần người dùng hoàn thiện để hoạt động đầy đủ.)
+- `GET /api/users/me` - Lấy thông tin người dùng hiện tại
+- `PUT /api/users/me` - Cập nhật thông tin người dùng
+- `DELETE /api/users/me` - Xóa tài khoản
+- `GET /api/users/search` - Tìm kiếm người dùng
 
 #### 4.3.3 Quản lý bạn bè  
-- `GET /api/friends` - Lấy danh sách bạn bè  
-- `POST /api/friends/request` - Gửi yêu cầu kết bạn  
-- `PUT /api/friends/:id/accept` - Chấp nhận yêu cầu kết bạn  
-- `PUT /api/friends/:id/reject` - Từ chối yêu cầu kết bạn  
-- `DELETE /api/friends/:id` - Xóa bạn bè  
+(Lưu ý: Các API endpoint sau đây hiện là placeholder và trả về dữ liệu giả lập. Cần người dùng hoàn thiện để hoạt động đầy đủ.)
+- `GET /api/friends` - Lấy danh sách bạn bè
+- `POST /api/friends/request` - Gửi yêu cầu kết bạn
+- `PUT /api/friends/:id/accept` - Chấp nhận yêu cầu kết bạn
+- `PUT /api/friends/:id/reject` - Từ chối yêu cầu kết bạn
+- `DELETE /api/friends/:id` - Xóa bạn bè
 
-#### 4.3.4 Quản lý ảnh  
-- `POST /api/photos` - Tạo và gửi ảnh mới (lưu trữ trên Firebase Storage)  
-- `GET /api/photos` - Lấy lịch sử ảnh  
-- `GET /api/photos/received` - Lấy ảnh đã nhận  
-- `GET /api/photos/latest` - Lấy ảnh mới nhất cho widget  
-- `DELETE /api/photos/:id` - Xóa ảnh  
+#### 4.3.4 Quản lý Ảnh (Moments)
+- `POST /api/v1/moments` - Tạo và gửi ảnh mới. Frontend sẽ upload ảnh lên Firebase Storage và gửi `thumbnail_url` cùng `recipients` và `overlays` trong request body (ví dụ: `{ data: { thumbnail_url, recipients, overlays } }`). (Endpoint này hiện là placeholder và chỉ trả về thông báo thành công giả lập.)
+- `GET /api/photos` - Lấy lịch sử ảnh. (Lưu ý: Endpoint này hiện là placeholder, cần người dùng hoàn thiện.)
+- `GET /api/photos/received` - Lấy ảnh đã nhận. (Lưu ý: Endpoint này hiện là placeholder, cần người dùng hoàn thiện.)
+- `GET /api/photos/latest` - Lấy ảnh mới nhất cho widget. (Lưu ý: Endpoint này hiện là placeholder, cần người dùng hoàn thiện.)
+- `DELETE /api/photos/:id` - Xóa ảnh. (Lưu ý: Endpoint này hiện là placeholder, cần người dùng hoàn thiện.)
 
 #### 4.3.5 Quản lý thiết bị  
-- `POST /api/devices` - Đăng ký thiết bị mới cho FCM  
-- `PUT /api/devices/:id` - Cập nhật token thiết bị  
-- `DELETE /api/devices/:id` - Xóa thiết bị  
+(Lưu ý: Các API endpoint sau đây hiện là placeholder và trả về dữ liệu giả lập. Cần người dùng hoàn thiện để hoạt động đầy đủ.)
+- `POST /api/devices` - Đăng ký thiết bị mới cho FCM
+- `PUT /api/devices/:id` - Cập nhật token thiết bị
+- `DELETE /api/devices/:id` - Xóa thiết bị
 
 ### 4.4 WebSocket Events  
-- `photo:new` - Thông báo có ảnh mới  
-- `friend:request` - Thông báo yêu cầu kết bạn mới  
-- `friend:accept` - Thông báo chấp nhận kết bạn  
+(Lưu ý: WebSocket server và các event sau hiện là placeholder và chưa được triển khai đầy đủ.)
+- `photo:new` - Thông báo có ảnh mới
+- `friend:request` - Thông báo yêu cầu kết bạn mới
+- `friend:accept` - Thông báo chấp nhận kết bạn
 
 ---
 
@@ -326,21 +333,22 @@ devices
 
 ### 5.1 Môi trường phát triển  
 - **Frontend (React Native)**  
-  - Node.js v18+  
-  - npm/yarn  
-  - React Native CLI  
-  - TypeScript 5.0+  
-  - Xcode (cho iOS)  
-  - Android Studio (cho Android)  
+  - Node.js v18+
+  - npm/yarn
+  - Expo CLI (thay cho React Native CLI cho quy trình phát triển)
+  - TypeScript 5.0+
+  - Xcode (cho iOS, quản lý qua Expo)
+  - Android Studio (cho Android, quản lý qua Expo)
+  - EAS CLI (cho việc build và submit ứng dụng)
 
-- **Backend (Node.js)**  
-  - Node.js v18+  
-  - npm/yarn  
-  - Express  
-  - TypeScript 5.0+  
-  - MySQL 8.0+  
-  - Firebase Admin SDK  
-  - Nodemailer  
+- **Backend (Node.js)**
+  - Node.js v18+
+  - npm/yarn
+  - Express
+  - TypeScript 5.0+
+  - MySQL 8.0+ (Lưu ý: Backend hiện tại là placeholder, không có tương tác DB thực tế)
+  - Firebase Admin SDK (Cho việc quản lý Firebase phía server, nếu cần. Hiện tại backend là placeholder)
+  - Nodemailer (Cho việc gửi email, nếu cần. Hiện tại backend là placeholder)
 
 ### 5.2 Quy trình CI/CD  
 1. **Kiểm thử tự động**  
@@ -383,10 +391,10 @@ devices
 ### 6.3 Kiểm thử end-to-end  
 - Kiểm thử luồng đăng ký và đăng nhập  
 - Kiểm thử luồng kết bạn  
-- Kiểm thử luồng chụp và chia sẻ ảnh  
-- Kiểm thử widget và thông báo đẩy (FCM)  
+- Kiểm thử luồng chụp và chia sẻ ảnh (Chỉ ảnh, không video)
+- Kiểm thử widget và thông báo đẩy (FCM)
 
-### 6.4 Kiểm thử hiệu suất  
+### 6.4 Kiểm thử hiệu suất
 - Kiểm thử tải (load testing)  
 - Kiểm thử stress  
 - Kiểm thử thời gian phản hồi  
@@ -414,12 +422,12 @@ devices
 - Thiết lập CI/CD  
 
 ### 7.3 Giai đoạn 3: Phát triển tính năng (6 tuần)  
-- Phát triển tính năng chụp và chia sẻ ảnh (Firebase Storage)  
-- Phát triển widget cho iOS và Android  
-- Phát triển quản lý bạn bè  
-- Phát triển hệ thống thông báo (FCM, Nodemailer)  
+- Phát triển tính năng chụp và chia sẻ ảnh (Firebase Storage cho client upload, backend nhận URL). (Chức năng video đã bị loại bỏ)
+- Phát triển widget cho iOS và Android.
+- Phát triển quản lý bạn bè.
+- Phát triển hệ thống thông báo (FCM, Nodemailer). (Lưu ý: Backend hiện tại là placeholder)
 
-### 7.4 Giai đoạn 4: Kiểm thử và tối ưu (3 tuần)  
+### 7.4 Giai đoạn 4: Kiểm thử và tối ưu (3 tuần)
 - Kiểm thử toàn diện  
 - Tối ưu hiệu suất  
 - Sửa lỗi  
@@ -460,10 +468,10 @@ devices
 
 ## 9. CÁC CÂN NHẮC BỔ SUNG  
 
-- **Lưu trữ**: Sử dụng Firebase Storage cho ảnh, hỗ trợ lưu cục bộ trên thiết bị cho chế độ offline.  
-- **Thông báo đẩy**: Tích hợp Firebase Cloud Messaging (FCM) để gửi thông báo đẩy cho người dùng.  
-- **Đồng bộ hóa**: Dữ liệu được đồng bộ giữa các thiết bị thông qua API và Firebase Realtime Database hoặc Firestore, đảm bảo người dùng có thể truy cập dữ liệu mới nhất trên nhiều thiết bị.  
-- **Gửi email**: Sử dụng Nodemailer để gửi email cho các chức năng như đặt lại mật khẩu, thông báo hệ thống, và xác nhận tài khoản.  
+- **Lưu trữ Ảnh**: Frontend chịu trách nhiệm upload ảnh trực tiếp lên Firebase Storage. Backend chỉ nhận URL của ảnh đã upload. (Chức năng video đã bị loại bỏ)
+- **Thông báo đẩy**: Tích hợp Firebase Cloud Messaging (FCM) để gửi thông báo đẩy cho người dùng. (Backend hiện tại là placeholder, logic gửi push notification cần được người dùng hoàn thiện)
+- **Đồng bộ hóa**: Dữ liệu được đồng bộ giữa các thiết bị thông qua API. (Backend hiện tại là placeholder, logic đồng bộ hóa cần được người dùng hoàn thiện)
+- **Gửi email**: Sử dụng Nodemailer để gửi email cho các chức năng như đặt lại mật khẩu, thông báo hệ thống, và xác nhận tài khoản. (Backend hiện tại là placeholder, logic gửi email cần được người dùng hoàn thiện)
 
 ---
 

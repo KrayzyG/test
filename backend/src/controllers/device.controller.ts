@@ -1,17 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
-import { DeviceService } from '../services/device.service';
+import { DeviceService } from '../services/device.service'; // Uses placeholder service
 import { AuthRequest } from '../types/express';
 
-const deviceService = new DeviceService();
+const deviceService = new DeviceService(); // Instantiates placeholder service
 
 export class DeviceController {
   /**
-   * Register a new device
+   * Register a new device (Using Placeholder Service)
    */
   public async registerDevice(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.id;
-      
+
       if (!userId) {
         return res.status(401).json({
           status: 'error',
@@ -19,9 +19,9 @@ export class DeviceController {
           message: 'Unauthorized',
         });
       }
-      
+
       const { device_token, platform } = req.body;
-      
+
       if (!device_token) {
         return res.status(400).json({
           status: 'error',
@@ -29,7 +29,7 @@ export class DeviceController {
           message: 'Device token is required',
         });
       }
-      
+
       if (!platform || !['ios', 'android'].includes(platform)) {
         return res.status(400).json({
           status: 'error',
@@ -37,41 +37,26 @@ export class DeviceController {
           message: 'Valid platform (ios or android) is required',
         });
       }
-      
-      // Check if device already exists
-      const existingDevice = await deviceService.findByToken(device_token);
-      
+
+      // Placeholder: Simulate checking if device already exists and handling it
+      const existingDevice = await deviceService.findByToken(device_token); // Uses placeholder
+
       if (existingDevice) {
-        // If device exists but belongs to another user, update it
+        let updatedDevice;
         if (existingDevice.user_id !== userId) {
-          const updatedDevice = await deviceService.updateDevice(existingDevice.id, {
+          // Simulate re-assigning device to new user
+          updatedDevice = await deviceService.updateDevice(existingDevice.id, { // Uses placeholder
             user_id: userId,
             last_active_at: new Date(),
           });
-          
-          return res.status(200).json({
-            status: 'success',
-            data: {
-              device: {
-                id: updatedDevice.id,
-                device_token: updatedDevice.device_token,
-                platform: updatedDevice.platform,
-                created_at: updatedDevice.created_at,
-                last_active_at: updatedDevice.last_active_at,
-              },
-            },
-          });
+        } else {
+          // Simulate updating last_active_at for existing device of same user
+          updatedDevice = await deviceService.updateLastActive(existingDevice.id); // Uses placeholder
         }
-        
-        // If device exists and belongs to the same user, update last_active_at
-        const updatedDevice = await deviceService.updateDevice(existingDevice.id, {
-          last_active_at: new Date(),
-        });
-        
         return res.status(200).json({
           status: 'success',
           data: {
-            device: {
+            device: { // Return mock device data
               id: updatedDevice.id,
               device_token: updatedDevice.device_token,
               platform: updatedDevice.platform,
@@ -81,18 +66,18 @@ export class DeviceController {
           },
         });
       }
-      
-      // Create new device
+
+      // Create new device using placeholder service
       const device = await deviceService.createDevice({
         user_id: userId,
         device_token,
         platform,
       });
-      
+
       return res.status(201).json({
         status: 'success',
         data: {
-          device: {
+          device: { // Return mock device data
             id: device.id,
             device_token: device.device_token,
             platform: device.platform,
@@ -105,14 +90,14 @@ export class DeviceController {
       next(error);
     }
   }
-  
+
   /**
-   * Update device token
+   * Update device token (Using Placeholder Service)
    */
   public async updateDevice(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.id;
-      
+
       if (!userId) {
         return res.status(401).json({
           status: 'error',
@@ -120,18 +105,19 @@ export class DeviceController {
           message: 'Unauthorized',
         });
       }
-      
+
       const { id } = req.params;
+      const deviceIdNum = parseInt(id);
       const { device_token } = req.body;
-      
-      if (!id) {
+
+      if (!deviceIdNum) {
         return res.status(400).json({
           status: 'error',
           code: 400,
-          message: 'Device ID is required',
+          message: 'Device ID is required and must be a number',
         });
       }
-      
+
       if (!device_token) {
         return res.status(400).json({
           status: 'error',
@@ -139,35 +125,34 @@ export class DeviceController {
           message: 'Device token is required',
         });
       }
-      
-      const device = await deviceService.findById(parseInt(id));
-      
+
+      const device = await deviceService.findById(deviceIdNum); // Uses placeholder
+
       if (!device) {
         return res.status(404).json({
           status: 'error',
           code: 404,
-          message: 'Device not found',
+          message: 'Device not found (placeholder)',
         });
       }
-      
-      // Check if device belongs to the user
+
       if (device.user_id !== userId) {
         return res.status(403).json({
           status: 'error',
           code: 403,
-          message: 'Not authorized to update this device',
+          message: 'Not authorized to update this device (placeholder)',
         });
       }
-      
-      const updatedDevice = await deviceService.updateDevice(parseInt(id), {
+
+      const updatedDevice = await deviceService.updateDevice(deviceIdNum, { // Uses placeholder
         device_token,
         last_active_at: new Date(),
       });
-      
+
       return res.status(200).json({
         status: 'success',
         data: {
-          device: {
+          device: { // Return mock device data
             id: updatedDevice.id,
             device_token: updatedDevice.device_token,
             platform: updatedDevice.platform,
@@ -180,14 +165,14 @@ export class DeviceController {
       next(error);
     }
   }
-  
+
   /**
-   * Delete device
+   * Delete device (Using Placeholder Service)
    */
   public async deleteDevice(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.id;
-      
+
       if (!userId) {
         return res.status(401).json({
           status: 'error',
@@ -195,54 +180,54 @@ export class DeviceController {
           message: 'Unauthorized',
         });
       }
-      
+
       const { id } = req.params;
-      
-      if (!id) {
+      const deviceIdNum = parseInt(id);
+
+      if (!deviceIdNum) {
         return res.status(400).json({
           status: 'error',
           code: 400,
-          message: 'Device ID is required',
+          message: 'Device ID is required and must be a number',
         });
       }
-      
-      const device = await deviceService.findById(parseInt(id));
-      
+
+      const device = await deviceService.findById(deviceIdNum); // Uses placeholder
+
       if (!device) {
         return res.status(404).json({
           status: 'error',
           code: 404,
-          message: 'Device not found',
+          message: 'Device not found (placeholder)',
         });
       }
-      
-      // Check if device belongs to the user
+
       if (device.user_id !== userId) {
         return res.status(403).json({
           status: 'error',
           code: 403,
-          message: 'Not authorized to delete this device',
+          message: 'Not authorized to delete this device (placeholder)',
         });
       }
-      
-      await deviceService.deleteDevice(parseInt(id));
-      
+
+      await deviceService.deleteDevice(deviceIdNum); // Uses placeholder
+
       return res.status(200).json({
         status: 'success',
-        message: 'Device deleted successfully',
+        message: 'Device deleted successfully (placeholder)',
       });
     } catch (error) {
       next(error);
     }
   }
-  
+
   /**
-   * Get user devices
+   * Get user devices (Using Placeholder Service)
    */
   public async getUserDevices(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.id;
-      
+
       if (!userId) {
         return res.status(401).json({
           status: 'error',
@@ -250,13 +235,13 @@ export class DeviceController {
           message: 'Unauthorized',
         });
       }
-      
-      const devices = await deviceService.getUserDevices(userId);
-      
+
+      const devices = await deviceService.getUserDevices(userId); // Uses placeholder
+
       return res.status(200).json({
         status: 'success',
         data: {
-          devices: devices.map(device => ({
+          devices: devices.map(device => ({ // Map mock device data
             id: device.id,
             device_token: device.device_token,
             platform: device.platform,
